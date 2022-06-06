@@ -117,7 +117,8 @@ function setText(text, position) {
   const { textEl, textlineEl } = this;
   // firefox bug
   textEl.el.blur();
-
+  // $(textEl.el).keydown();
+// console.log('setText', textEl);
   textEl.val(text);
   textlineEl.html(text);
   setTextareaRange.call(this, position);
@@ -128,6 +129,7 @@ function suggestItemClick(it) {
   let position = 0;
   if (validator && validator.type === 'list') {
     this.inputText = it;
+    console.log('inputText:', this.inputText);
     position = this.inputText.length;
   } else {
     const start = inputText.lastIndexOf('=');
@@ -139,11 +141,11 @@ function suggestItemClick(it) {
       eit = '';
     }
     this.inputText = `${sit + it.key}(`;
-    // console.log('inputText:', this.inputText);
     position = this.inputText.length;
     this.inputText += `)${eit}`;
   }
   setText.call(this, this.inputText, position);
+  this.clear();
 }
 
 function resetSuggestItems() {
