@@ -380,6 +380,22 @@ class Draw {
     // ctx.restore();
   }
 
+  changed(box) {
+    const { ctx } = this;
+    const { x, y, width } = box;
+    const sx = x + width - 1;
+    // console.log(['frozen',box, ctx]);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(npx(sx - 8), npx(y - 1));
+    ctx.lineTo(npx(sx), npx(y - 1));
+    ctx.lineTo(npx(sx), npx(y + 8));
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(150, 0, 232, .85)';
+    ctx.fill();
+    ctx.restore();
+  }
+
   rect(box, dtextcb) {
     const { ctx } = this;
     const {
