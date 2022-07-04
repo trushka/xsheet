@@ -106,6 +106,7 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     }
     if (cell.changed) {
       draw.changed(dbox);
+
     }
   });
 }
