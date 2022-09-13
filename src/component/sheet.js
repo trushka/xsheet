@@ -216,26 +216,26 @@ function overlayerMousescroll(evt) {
       // left
       const ci = data.scroll.ci + 1;
       if (ci < cols.len) {
-        const cw = loopValue(ci, i => cols.getWidth(i));
+        const cw = loopValue(ci, i => cols.getWidth(i))/2;
         horizontalScrollbar.move({ left: left + cw - 1 });
       }
     } else {
       // right
       const ci = data.scroll.ci - 1;
       if (ci >= 0) {
-        const cw = loopValue(ci, i => cols.getWidth(i));
+        const cw = loopValue(ci, i => cols.getWidth(i))/2;
         horizontalScrollbar.move({ left: ci === 0 ? 0 : left - cw });
       }
     }
   };
   const tempY = Math.abs(deltaY);
-  const tempX = Math.abs(deltaX);
+  const tempX = Math.abs(deltaX/10);
   const temp = Math.max(tempY, tempX);
-  // console.log('event:', evt);
+  console.log('dX tX t:', deltaX, tempX, temp);
   // detail for windows/mac firefox vertical scroll
   if (/Firefox/i.test(window.navigator.userAgent)) throttle(moveY(evt.detail), 50);
-  if (temp === tempX) throttle(moveX(deltaX), 50);
-  if (temp === tempY) throttle(moveY(deltaY), 50);
+  if (temp === tempX) throttle(moveX(deltaX/10), 500);
+  else if (temp === tempY) throttle(moveY(deltaY), 50);
 }
 
 function overlayerTouch(direction, distance) {

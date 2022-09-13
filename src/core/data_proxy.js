@@ -897,8 +897,8 @@ export default class DataProxy {
       ri, top, height,
     ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, i => rows.getHeight(i));
     let y1 = top;
-    if (y > 0) y1 += height;
-    // console.log('ri:', ri, ' ,y:', y1);
+    if (y > 0) y1 += height-20;
+    console.log('scrolly', 'ri:', ri, ' ,y1:', y1, y, height, ri);
     if (scroll.y !== y1) {
       scroll.ri = y > 0 ? ri : 0;
       scroll.y = y1;
