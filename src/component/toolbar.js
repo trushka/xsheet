@@ -160,7 +160,7 @@ export default class Toolbar {
       this.freezeEl = buildButtonWithIcon(`${t('toolbar.freeze')}`, 'freeze', () => toggleChange.call(this, 'freeze')),
       this.autofilterEl = buildButtonWithIcon(`${t('toolbar.autofilter')}`, 'autofilter', () => toggleChange.call(this, 'autofilter')),
       buildButton(`${t('toolbar.formula')}`).child(this.ddFormula.el),
-      buildDivider(),
+      // buildDivider(),
       this.moreEl = buildButton(`${t('toolbar.more')}`).child(this.ddMore.el).hide(),
       this.jumpToCell = buildButtonWithIcon(`${t('toolbar.jumpToCell')}`, 'jumpToCell', () => toggleChange.call(this, 'textwrap')),
     ];

@@ -39,6 +39,7 @@ export function indexAt(str) {
   return ret;
 }
 
+
 // B10 => x,y
 /** translate A1-tag to XY-tag
  * @date 2019-10-10
