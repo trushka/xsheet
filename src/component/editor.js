@@ -81,7 +81,7 @@ function inputEventHandler(evt) {
       resetTextareaSize.call(this);
       this.change('input', v);
     } else {
-      evt.target.value = '';
+      evt.target.value = cell.text || '';
     }
   } else {
     this.inputText = v;
@@ -117,8 +117,7 @@ function setText(text, position) {
   const { textEl, textlineEl } = this;
   // firefox bug
   textEl.el.blur();
-  // $(textEl.el).keydown();
-// console.log('setText', textEl);
+
   textEl.val(text);
   textlineEl.html(text);
   setTextareaRange.call(this, position);
@@ -129,7 +128,6 @@ function suggestItemClick(it) {
   let position = 0;
   if (validator && validator.type === 'list') {
     this.inputText = it;
-    console.log('inputText:', this.inputText);
     position = this.inputText.length;
   } else {
     const start = inputText.lastIndexOf('=');
@@ -182,7 +180,6 @@ export default class Editor {
           .on('keydown', evt => keydownEventHandler.call(this, evt)),
         this.textlineEl = h('div', 'textline'),
         this.suggest.el,
-        this.suggest.scrollbar.el,
         this.datepicker.el,
       )
       .on('mousemove.stop', () => {})
@@ -252,6 +249,8 @@ export default class Editor {
   }
 
   setCell(cell, validator) {
+    if (cell && cell.editable === false) return;
+
     // console.log('::', validator);
     const { el, datepicker, suggest } = this;
     el.show();

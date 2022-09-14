@@ -1,6 +1,11 @@
 /* global window */
 import { h } from './element';
-import { bind, mouseMoveUp, bindTouch, createEventEmitter } from './event';
+import {
+  bind,
+  mouseMoveUp,
+  bindTouch,
+  createEventEmitter,
+} from './event';
 import Resizer from './resizer';
 import Scrollbar from './scrollbar';
 import Selector from './selector';
@@ -63,13 +68,12 @@ function scrollbarMove() {
   }
 }
 
-function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = true) {
+function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = false) {
   if (ri === -1 && ci === -1) return;
   const {
     table, selector, toolbar, data,
     contextMenu,
   } = this;
-  contextMenu.setMode((ri === -1 || ci === -1) ? 'row-col' : 'range');
   const cell = data.getCell(ri, ci);
   if (multiple) {
     selector.setEnd(ri, ci, moving);
@@ -79,6 +83,7 @@ function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = true) {
     selector.set(ri, ci, indexesUpdated);
     this.trigger('cell-selected', cell, ri, ci);
   }
+  contextMenu.setMode((ri === -1 || ci === -1) ? 'row-col' : 'range');
   toolbar.reset();
   table.render();
 }
@@ -172,6 +177,7 @@ function overlayerMousescroll(evt) {
   // scrollThreshold -= 1;
   // if (scrollThreshold > 0) return;
   // scrollThreshold = 15;
+
   const { verticalScrollbar, horizontalScrollbar, data } = this;
   const { top } = verticalScrollbar.scroll();
   const { left } = horizontalScrollbar.scroll();
@@ -216,26 +222,26 @@ function overlayerMousescroll(evt) {
       // left
       const ci = data.scroll.ci + 1;
       if (ci < cols.len) {
-        const cw = loopValue(ci, i => cols.getWidth(i))/2;
+        const cw = loopValue(ci, i => cols.getWidth(i));
         horizontalScrollbar.move({ left: left + cw - 1 });
       }
     } else {
       // right
       const ci = data.scroll.ci - 1;
       if (ci >= 0) {
-        const cw = loopValue(ci, i => cols.getWidth(i))/2;
+        const cw = loopValue(ci, i => cols.getWidth(i));
         horizontalScrollbar.move({ left: ci === 0 ? 0 : left - cw });
       }
     }
   };
   const tempY = Math.abs(deltaY);
-  const tempX = Math.abs(deltaX/10);
+  const tempX = Math.abs(deltaX);
   const temp = Math.max(tempY, tempX);
-  console.log('dX tX t:', deltaX, tempX, temp);
+  // console.log('event:', evt);
   // detail for windows/mac firefox vertical scroll
   if (/Firefox/i.test(window.navigator.userAgent)) throttle(moveY(evt.detail), 50);
-  if (temp === tempX) throttle(moveX(deltaX/10), 500);
-  else if (temp === tempY) throttle(moveY(deltaY), 50);
+  if (temp === tempX) throttle(moveX(deltaX), 50);
+  if (temp === tempY) throttle(moveY(deltaY), 50);
 }
 
 function overlayerTouch(direction, distance) {
@@ -254,7 +260,7 @@ function verticalScrollbarSet() {
   const { data, verticalScrollbar } = this;
   const { height } = this.getTableOffset();
   const erth = data.exceptRowTotalHeight(0, -1);
-  //console.log('erth:', erth);
+  // console.log('erth:', erth);
   verticalScrollbar.set(height, data.rows.totalHeight() - erth);
 }
 
@@ -309,15 +315,17 @@ function clearClipboard() {
   selector.hideClipboard();
 }
 
-function copy() {
+function copy(evt) {
   const { data, selector } = this;
+  if (data.settings.mode === 'read') return;
   data.copy();
-  data.copyToSystemClipboard();
+  data.copyToSystemClipboard(evt);
   selector.showClipboard();
 }
 
 function cut() {
   const { data, selector } = this;
+  if (data.settings.mode === 'read') return;
   data.cut();
   selector.showClipboard();
 }
@@ -325,7 +333,15 @@ function cut() {
 function paste(what, evt) {
   const { data } = this;
   if (data.settings.mode === 'read') return;
-  if (data.paste(what, msg => xtoast('Tip', msg))) {
+  if (data.clipboard.isClear()) {
+    const resetSheet = () => sheetReset.call(this);
+    const eventTrigger = (rows) => {
+      this.trigger('pasted-clipboard', rows);
+    };
+    // pastFromSystemClipboard is async operation, need to tell it how to reset sheet and trigger event after it finishes
+    // pasting content from system clipboard
+    data.pasteFromSystemClipboard(resetSheet, eventTrigger);
+  } else if (data.paste(what, msg => xtoast('Tip', msg))) {
     sheetReset.call(this);
   } else if (evt) {
     const cdata = evt.clipboardData.getData('text/plain');
@@ -601,7 +617,12 @@ function sheetInitEvents() {
         }
         evt.stopPropagation();
       } else if (evt.detail === 2) {
-        editorSet.call(this);
+        var cell = this.data.getSelectedCell(selector.range.sri, selector.range.eci);
+        this.trigger('cell-dblclicked', cell);
+        if(cell && cell.editable && cell.editable === false)
+          console.log('Editing Disabled');
+        else
+          editorSet.call(this);
       } else {
         overlayerMousedown.call(this, evt);
       }
@@ -706,8 +727,14 @@ function sheetInitEvents() {
   });
 
   bind(window, 'paste', (evt) => {
-    if(!this.focusing) return;
+    if (!this.focusing) return;
     paste.call(this, 'all', evt);
+    evt.preventDefault();
+  });
+
+  bind(window, 'copy', (evt) => {
+    if (!this.focusing) return;
+    copy.call(this, evt);
     evt.preventDefault();
   });
 
@@ -934,7 +961,7 @@ export default class Sheet {
 
   trigger(eventName, ...args) {
     const { eventMap } = this;
-    eventMap.fire(eventName, args)
+    eventMap.fire(eventName, args);
   }
 
   resetData(data) {
@@ -958,7 +985,6 @@ export default class Sheet {
 
   // freeze rows or cols
   freeze(ri, ci) {
-    console.log("freeze", ri);
     const { data } = this;
     data.setFreeze(ri, ci);
     sheetReset.call(this);

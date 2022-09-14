@@ -1,7 +1,6 @@
 import { h } from './element';
 import { bindClickoutside, unbindClickoutside } from './event';
 import { cssPrefix } from '../config';
-import Scrollbar from './scrollbar';
 
 function inputMovePrev(evt) {
   evt.preventDefault();
@@ -70,7 +69,6 @@ function inputKeydownHandler(evt) {
 
 export default class Suggest {
   constructor(items, itemClick, width = '200px') {
-    this.scrollbar = new Scrollbar(true);
     this.filterItems = [];
     this.items = items;
     this.el = h('div', `${cssPrefix}-suggest`).css('width', width).hide();
