@@ -882,7 +882,7 @@ export default class DataProxy {
     ] = helper.rangeReduceIf(fci, cols.len, 0, 0, x, i => cols.getWidth(i));
     // console.log('fci:', fci, ', ci:', ci);
     let x1 = left;
-    if (x > 0) x1 += width;
+    if (x > 0) x1 = x;//+= width;
     if (scroll.x !== x1) {
       scroll.ci = x > 0 ? ci : 0;
       scroll.x = x1;
@@ -897,8 +897,8 @@ export default class DataProxy {
       ri, top, height,
     ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, i => rows.getHeight(i));
     let y1 = top;
-    if (y > 0) y1 += height-20;
-    console.log('scrolly', 'ri:', ri, ' ,y1:', y1, y, height, ri);
+    if (y > 0) y1 = y;//+= height-20;
+    //console.log('scrolly', 'ri:', ri, ' ,y1:', y1, y, height, ri);
     if (scroll.y !== y1) {
       scroll.ri = y > 0 ? ri : 0;
       scroll.y = y1;
