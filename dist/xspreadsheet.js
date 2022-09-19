@@ -7254,7 +7254,7 @@ function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
       data = this.data;
   var settings = data.settings;
   draw.save();
-  draw.attr(tableGridStyle).clearRect(fw + tx, fh + ty, w, h).translate(dx, dy); // const sumWidth = cols.sumWidth(sci, eci + 1);
+  draw.attr(tableGridStyle).translate(fw, fh).clearRect(tx, ty, w, h).translate(dx, dy); // const sumWidth = cols.sumWidth(sci, eci + 1);
   // const sumHeight = rows.sumHeight(sri, eri + 1);
   // console.log('sumWidth:', sumWidth);
   //  draw.clearRect(0, 0, w, h);
@@ -7267,11 +7267,11 @@ function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
 
   data.rowEach(0, eri, function (i, y, ch) {
     // console.log('y:', y);
-    if (i > sri) draw.line([0, y], [w, y]);
+    if (i > sri) draw.line([0, y], [w - dx, y]);
     if (i === eri) draw.line([0, y + ch], [w, y + ch]);
   });
   data.colEach(0, eci, function (i, x, cw) {
-    if (i > sci) draw.line([x, 0], [x, h]);
+    if (i > sci) draw.line([x, 0], [x, h - dy]);
     if (i === eci) draw.line([x + cw, 0], [x + cw, h]);
   });
   draw.restore();
@@ -12272,8 +12272,7 @@ function () {
 
         if (colWidth > 0) {
           cb(i, x, colWidth);
-          x += colWidth;
-          if (x > this.viewWidth()) break;
+          x += colWidth; //if (x > this.viewWidth()) break;
         }
       }
     }

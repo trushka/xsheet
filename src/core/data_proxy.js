@@ -1139,7 +1139,7 @@ export default class DataProxy {
       if (colWidth > 0) {
         cb(i, x, colWidth);
         x += colWidth;
-        if (x > this.viewWidth()) break;
+        //if (x > this.viewWidth()) break;
       }
     }
   }
