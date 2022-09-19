@@ -1125,7 +1125,7 @@ export default class DataProxy {
         if (rowHeight > 0) {
           cb(i, y, rowHeight);
           y += rowHeight;
-          if (y > this.viewHeight()) break;
+          //if (y > this.viewHeight()) break;
         }
       }
     }

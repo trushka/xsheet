@@ -262,29 +262,31 @@ function renderFixedLeftTopCell(fw, fh) {
 
 function renderContentGrid({
   sri, sci, eri, eci, w, h,
-}, fw, fh, tx, ty) {
+}, fw, fh, tx, ty, dx, dy) {
   const { draw, data } = this;
   const { settings } = data;
 
   draw.save();
   draw.attr(tableGridStyle)
-    .translate(fw + tx, fh + ty);
+    .clearRect(fw + tx, fh + ty, w, h)
+    .translate(dx, dy);
   // const sumWidth = cols.sumWidth(sci, eci + 1);
   // const sumHeight = rows.sumHeight(sri, eri + 1);
   // console.log('sumWidth:', sumWidth);
-  draw.clearRect(0, 0, w, h);
+//  draw.clearRect(0, 0, w, h);
   if (!settings.showGrid) {
     draw.restore();
     return;
   }
+  
   // console.log('rowStart:', rowStart, ', rowLen:', rowLen);
-  data.rowEach(sri, eri, (i, y, ch) => {
+  data.rowEach(0, eri, (i, y, ch) => {
     // console.log('y:', y);
-    if (i !== sri) draw.line([0, y], [w, y]);
+    if (i > sri) draw.line([0, y], [w, y]);
     if (i === eri) draw.line([0, y + ch], [w, y + ch]);
   });
-  data.colEach(sci, eci, (i, x, cw) => {
-    if (i !== sci) draw.line([x, 0], [x, h]);
+  data.colEach(0, eci, (i, x, cw) => {
+    if (i > sci) draw.line([x, 0], [x, h]);
     if (i === eci) draw.line([x + cw, 0], [x + cw, h]);
   });
   draw.restore();
@@ -333,10 +335,10 @@ class Table {
     const ty = data.freezeTotalHeight();
     const { x, y } = data.scroll;
     // 1
-    renderContentGrid.call(this, viewRange, fw, fh, tx, ty);
+    renderContentGrid.call(this, viewRange, fw, fh, tx, ty, -x, -y);
     renderContent.call(this, viewRange, fw, fh, -x, -y);
-    //renderFixedHeaders.call(this, 'all', viewRange, fw, fh, tx, ty);
-    //renderFixedLeftTopCell.call(this, fw, fh);
+    renderFixedHeaders.call(this, 'all', viewRange, fw, fh, tx, ty);
+    renderFixedLeftTopCell.call(this, fw, fh);
     const [fri, fci] = data.freeze;
     if (fri > 0 || fci > 0) {
       // 2
