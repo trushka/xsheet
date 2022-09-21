@@ -7261,7 +7261,7 @@ function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
       data = this.data;
   var settings = data.settings;
   draw.save();
-  draw.attr(tableGridStyle).translate(fw, fh).clearRect(tx, ty, w, h).translate(dx, dy); // const sumWidth = cols.sumWidth(sci, eci + 1);
+  draw.attr(tableGridStyle).translate(fw, fh).clearRect(0, 0, w, h).translate(dx, dy); // const sumWidth = cols.sumWidth(sci, eci + 1);
   // const sumHeight = rows.sumHeight(sri, eri + 1);
   // console.log('sumWidth:', sumWidth);
   //  draw.clearRect(0, 0, w, h);
@@ -7329,7 +7329,9 @@ function () {
       var fh = rows.height;
       this.draw.resize(data.viewWidth(), data.viewHeight());
       this.clear();
-      var viewRange = data.viewRange(); // renderAll.call(this, viewRange, data.scroll);
+      var viewRange = data.viewRange();
+      viewRange.sri--;
+      viewRange.sci--; // renderAll.call(this, viewRange, data.scroll);
 
       var tx = data.freezeTotalWidth();
       var ty = data.freezeTotalHeight();
@@ -12176,6 +12178,9 @@ function () {
       var _ref2 = [rows.len, cols.len],
           eri = _ref2[0],
           eci = _ref2[1];
+      var _ref3 = [this.viewWidth(), this.viewHeight()],
+          w = _ref3[0],
+          h = _ref3[1];
 
       for (var i = ri; i < rows.len; i += 1) {
         if (!exceptRowSet.has(i)) {
@@ -12183,17 +12188,17 @@ function () {
           eri = i;
         }
 
-        if (y > this.viewHeight()) break;
+        if (y > h) break;
       }
 
       for (var j = ci; j < cols.len; j += 1) {
         x += cols.getWidth(j);
         eci = j;
-        if (x > this.viewWidth()) break;
+        if (x > w) break;
       } // console.log(ri, ci, eri, eci, x, y);
 
 
-      return new _cell_range__WEBPACK_IMPORTED_MODULE_10__["CellRange"](ri, ci, eri, eci, x, y);
+      return new _cell_range__WEBPACK_IMPORTED_MODULE_10__["CellRange"](ri, ci, eri, eci, w, h);
     }
   }, {
     key: "eachMergesInView",

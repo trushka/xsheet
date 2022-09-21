@@ -269,7 +269,7 @@ function renderContentGrid({
   draw.save();
   draw.attr(tableGridStyle)
     .translate(fw, fh)
-    .clearRect(tx, ty, w, h)
+    .clearRect(0, 0, w, h)
     .translate(dx, dy);
   // const sumWidth = cols.sumWidth(sci, eci + 1);
   // const sumHeight = rows.sumHeight(sri, eri + 1);
@@ -331,6 +331,8 @@ class Table {
     this.clear();
 
     const viewRange = data.viewRange();
+    viewRange.sri--;
+    viewRange.sci--;
     // renderAll.call(this, viewRange, data.scroll);
     const tx = data.freezeTotalWidth();
     const ty = data.freezeTotalHeight();

@@ -1061,20 +1061,21 @@ export default class DataProxy {
 
     let [x, y] = [0, 0];
     let [eri, eci] = [rows.len, cols.len];
+    const [w, h] = [this.viewWidth(), this.viewHeight()]
     for (let i = ri; i < rows.len; i += 1) {
       if (!exceptRowSet.has(i)) {
         y += rows.getHeight(i);
         eri = i;
       }
-      if (y > this.viewHeight()) break;
+      if (y > h) break;
     }
     for (let j = ci; j < cols.len; j += 1) {
       x += cols.getWidth(j);
       eci = j;
-      if (x > this.viewWidth()) break;
+      if (x > w) break;
     }
     // console.log(ri, ci, eri, eci, x, y);
-    return new CellRange(ri, ci, eri, eci, x, y);
+    return new CellRange(ri, ci, eri, eci, w, h);
   }
 
   eachMergesInView(viewRange, cb) {
