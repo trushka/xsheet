@@ -1,10 +1,4 @@
-window.onload = function(){
-
-    xs = x_spreadsheet('#x-spreadsheet-demo', {showToolbar: true, showGrid: true})
-        .loadData(data)
-}
-var xs,
-    data=[
+[
     {
         "name": "Profitability Based On Bank Statement (No HST)",
         "freeze": "D4",

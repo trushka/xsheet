@@ -11,7 +11,18 @@
   </div> -->
   <div id="x-spreadsheet-demo">
   </div>
-  <script defer src="../assets/load_data.js"></script>
+  <script>
+    window.onload = function(){
+
+      window.xs = x_spreadsheet('#x-spreadsheet-demo', {showToolbar: true, showGrid: true})
+
+      fetch('../assets/data.json').then((response) => {
+        return response.json();
+      }).then((data) => { //data.data.results.forEach((u,i)=>{
+        xs.loadData(data)
+      })
+    }
+  </script>
   <!--script type="text/javascript" src="https://unpkg.com/x-data-spreadsheet@1.0.20/dist/locale/zh-cn.js"></script-->
 </body>
 </html>

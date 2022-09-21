@@ -15,6 +15,7 @@ module.exports = merge(common, {
     new HtmlWebpackPlugin({
       template: './index.html',
       title: 'x-spreadsheet',
+      hash: true,
     }),
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
