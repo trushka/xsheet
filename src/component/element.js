@@ -133,7 +133,11 @@ class Element {
     } else if (arg instanceof Element) {
       ele = arg.el;
     }
-    this.el.appendChild(ele);
+    //console.log(this.el, ele);
+    if (ele.contains(this.el)) {
+      console.warn(ele, 'contains', this.el)
+    } else {this.el.appendChild(ele)};
+    
     return this;
   }
 

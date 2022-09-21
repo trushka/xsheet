@@ -64,7 +64,7 @@ function moreResize() {
   const list2 = [];
   btns2.forEach(([it, w], index) => {
     sumWidth += w;
-    if (index === btns2.length - 1 || sumWidth < elBox.width) {
+    if (index >= btns2.length - 3 || sumWidth < elBox.width) {
       list1.push(it);
     } else {
       sumWidth2 += w;

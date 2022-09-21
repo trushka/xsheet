@@ -2916,13 +2916,13 @@ function () {
     first() {
       return this.el.firstChild;
     }
-      last() {
+     last() {
       return this.el.lastChild;
     }
-      remove(ele) {
+     remove(ele) {
       return this.el.removeChild(ele);
     }
-      prepend(ele) {
+     prepend(ele) {
       const { el } = this;
       if (el.children.length > 0) {
         el.insertBefore(ele, el.firstChild);
@@ -2931,10 +2931,10 @@ function () {
       }
       return this;
     }
-      prev() {
+     prev() {
       return this.el.previousSibling;
     }
-      next() {
+     next() {
       return this.el.nextSibling;
     }
     */
@@ -2948,9 +2948,16 @@ function () {
         ele = document.createTextNode(arg);
       } else if (arg instanceof Element) {
         ele = arg.el;
+      } //console.log(this.el, ele);
+
+
+      if (ele.contains(this.el)) {
+        console.warn(ele, 'contains', this.el);
+      } else {
+        this.el.appendChild(ele);
       }
 
-      this.el.appendChild(ele);
+      ;
       return this;
     }
   }, {
@@ -8295,7 +8302,7 @@ function moreResize() {
 
     sumWidth += w;
 
-    if (index === btns2.length - 1 || sumWidth < elBox.width) {
+    if (index >= btns2.length - 3 || sumWidth < elBox.width) {
       list1.push(it);
     } else {
       sumWidth2 += w;
