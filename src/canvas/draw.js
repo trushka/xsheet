@@ -410,6 +410,13 @@ class Draw {
     dtextcb();
     ctx.restore();
   }
+
+  clipRect(...args) {
+    const { ctx } = this;
+    ctx.rect(...args.map(npx));
+    ctx.clip();
+    return this
+  }
 }
 
 export default {};

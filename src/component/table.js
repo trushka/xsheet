@@ -126,11 +126,14 @@ function renderAutofilter(viewRange) {
   }
 }
 
-function renderContent(viewRange, fw, fh, tx, ty) {
-  const { draw, data } = this;
+function renderContent(viewRange, fw, fh, tx, ty, dx, dy) {
+  const { draw, data } = this,
+    {w, h} = viewRange;
   draw.save();
-  draw.translate(fw, fh)
-    .translate(tx, ty);
+  draw
+    .translate(fw, fh)
+    .clipRect(tx, ty, w, h)
+    .translate(dx, dy);
 
   const { exceptRowSet } = data;
   // const exceptRows = Array.from(exceptRowSet);
@@ -270,24 +273,28 @@ function renderContentGrid({
   draw.attr(tableGridStyle)
     .translate(fw, fh)
     .clearRect(0, 0, w, h)
-    .translate(dx, dy);
+    //.translate(dx, dy);
   // const sumWidth = cols.sumWidth(sci, eci + 1);
   // const sumHeight = rows.sumHeight(sri, eri + 1);
-  // console.log('sumWidth:', sumWidth);
+  //console.log(data.freeze);
 //  draw.clearRect(0, 0, w, h);
   if (!settings.showGrid) {
     draw.restore();
     return;
   }
   
-  // console.log('rowStart:', rowStart, ', rowLen:', rowLen);
+  //console.log('rowStart:', rowStart, ', rowLen:', rowLen);
   data.rowEach(0, eri, (i, y, ch) => {
     // console.log('y:', y);
-    if (i > sri) draw.line([0, y], [w - dx, y]);
+    if (i > sri) y += dy;
+    else if (i > data.freeze[0]) return;
+    draw.line([0, y], [w - dx, y]);
     if (i === eri) draw.line([0, y + ch], [w, y + ch]);
   });
   data.colEach(0, eci, (i, x, cw) => {
-    if (i > sci) draw.line([x, 0], [x, h - dy]);
+    if (i > sci) x += dx;
+    else if (i > data.freeze[1]) return;
+    draw.line([x, 0], [x, h - dy]);
     if (i === eci) draw.line([x + cw, 0], [x + cw, h]);
   });
   draw.restore();
@@ -339,10 +346,11 @@ class Table {
     const { x, y } = data.scroll;
     // 1
     renderContentGrid.call(this, viewRange, fw, fh, tx, ty, -x, -y);
-    renderContent.call(this, viewRange, fw, fh, -x, -y);
+    renderContent.call(this, viewRange, fw, fh, tx, ty, -x, -y);
     renderFixedHeaders.call(this, 'all', viewRange, fw, fh, tx, ty);
     renderFixedLeftTopCell.call(this, fw, fh);
     const [fri, fci] = data.freeze;
+    //return;
     if (fri > 0 || fci > 0) {
       // 2
       if (fri > 0) {
@@ -350,8 +358,8 @@ class Table {
         vr.sri = 0;
         vr.eri = fri - 1;
         vr.h = ty;
-        renderContentGrid.call(this, vr, fw, fh, tx, 0);
-        renderContent.call(this, vr, fw, fh, -x, 0);
+        //renderContentGrid.call(this, vr, fw, fh, tx, 0);
+        renderContent.call(this, vr, fw, fh, tx, 0, -x, 0);
         renderFixedHeaders.call(this, 'top', vr, fw, fh, tx, 0);
       }
       // 3
@@ -360,15 +368,15 @@ class Table {
         vr.sci = 0;
         vr.eci = fci - 1;
         vr.w = tx;
-        renderContentGrid.call(this, vr, fw, fh, 0, ty);
+        //renderContentGrid.call(this, vr, fw, fh, 0, ty);
         renderFixedHeaders.call(this, 'left', vr, fw, fh, 0, ty);
-        renderContent.call(this, vr, fw, fh, 0, -y);
+        renderContent.call(this, vr, fw, fh, 0, ty, 0, -y);
       }
       // 4
       const freezeViewRange = data.freezeViewRange();
-      renderContentGrid.call(this, freezeViewRange, fw, fh, 0, 0);
+      //renderContentGrid.call(this, freezeViewRange, fw, fh, 0, 0);
       renderFixedHeaders.call(this, 'all', freezeViewRange, fw, fh, 0, 0);
-      renderContent.call(this, freezeViewRange, fw, fh, 0, 0);
+      renderContent.call(this, freezeViewRange, fw, fh, 0, 0, 0, 0);
       // 5
       renderFreezeHighlightLine.call(this, fw, fh, tx, ty);
     }

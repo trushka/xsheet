@@ -298,9 +298,9 @@ function sheetReset() {
   verticalScrollbarSet.call(this);
   horizontalScrollbarSet.call(this);
   sheetFreeze.call(this);
-  table.render();
   toolbar.reset();
   selector.reset();
+  table.render();
 }
 
 function clearClipboard() {
