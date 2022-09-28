@@ -588,16 +588,18 @@ function sheetInitEvents() {
       overlayerMousemove.call(this, evt);
     })
     .on('mousedown', (evt) => {
+      const {offsetX, offsetY} = evt;
+      if (offsetX > this.clientWidth || offsetY > this.clientHeight) return;
       editor.clear();
       contextMenu.hide();
       // the left mouse button: mousedown → mouseup → click
       // the right mouse button: mousedown → contenxtmenu → mouseup
       if (evt.buttons === 2) {
-        if (this.data.xyInSelectedRect(evt.offsetX, evt.offsetY)) {
-          contextMenu.setPosition(evt.offsetX, evt.offsetY);
+        if (this.data.xyInSelectedRect(offsetX, offsetY)) {
+          contextMenu.setPosition(offsetX, offsetY);
         } else {
           overlayerMousedown.call(this, evt);
-          contextMenu.setPosition(evt.offsetX, evt.offsetY);
+          contextMenu.setPosition(offsetX, offsetY);
         }
         evt.stopPropagation();
       } else if (evt.detail === 2) {
@@ -606,9 +608,9 @@ function sheetInitEvents() {
         overlayerMousedown.call(this, evt);
       }
     })
-    .on('mousewheel.stop', (evt) => {
-      overlayerMousescroll.call(this, evt);
-    })
+    // .on('mousewheel.stop', (evt) => {
+    //   overlayerMousescroll.call(this, evt);
+    // })
     .on('mouseout', (evt) => {
       const { offsetX, offsetY } = evt;
       if (offsetY <= 0) colResizer.hide();
@@ -621,11 +623,11 @@ function sheetInitEvents() {
   };
 
   // slide on mobile
-  bindTouch(overlayerEl.el, {
-    move: (direction, d) => {
-      overlayerTouch.call(this, direction, d);
-    },
-  });
+  // bindTouch(overlayerEl.el, {
+  //   move: (direction, d) => {
+  //     overlayerTouch.call(this, direction, d);
+  //   },
+  // });
 
   // toolbar change
   toolbar.change = (type, value) => toolbarChange.call(this, type, value);
@@ -875,8 +877,6 @@ export default class Sheet {
     this.rowResizer = new Resizer(false, data.rows.height);
     this.colResizer = new Resizer(true, data.cols.minWidth);
     // scrollbar
-    this.verticalScrollbar = new Scrollbar(true);
-    this.horizontalScrollbar = new Scrollbar(false);
     // editor
     this.editor = new Editor(
       formulas,
@@ -896,8 +896,12 @@ export default class Sheet {
         this.editor.el,
         this.selector.el,
       );
+
+    this.verticalScrollbar = //new Scrollbar(true);
+    this.horizontalScrollbar = //new Scrollbar(false);
     this.overlayerEl = h('div', `${cssPrefix}-overlayer`)
-      .child(this.overlayerCEl);
+      .child(this.overlayerCEl)
+      .child(this.contentEl = h('div', ''));
     // sortFilter
     this.sortFilter = new SortFilter();
     // root element
@@ -906,8 +910,8 @@ export default class Sheet {
       this.overlayerEl.el,
       this.rowResizer.el,
       this.colResizer.el,
-      this.verticalScrollbar.el,
-      this.horizontalScrollbar.el,
+      // this.verticalScrollbar.el,
+      // this.horizontalScrollbar.el,
       this.contextMenu.el,
       this.modalValidation.el,
       this.sortFilter.el,

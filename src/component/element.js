@@ -243,14 +243,14 @@ class Element {
   // css( propertyName, value )
   // css( properties )
   css(name, value) {
-    if (value === undefined && typeof name !== 'string') {
+    if (typeof name !== 'string') {
       Object.keys(name).forEach((k) => {
-        this.el.style[k] = name[k];
+        this.el.style.setProperty(k, name[k]+(value||''));
       });
       return this;
     }
     if (value !== undefined) {
-      this.el.style[name] = value;
+      this.el.style.setProperty(name, value);
       return this;
     }
     return this.el.style[name];
