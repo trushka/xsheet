@@ -5248,19 +5248,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./element */ "./src/component/element.js");
 /* harmony import */ var _event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./event */ "./src/component/event.js");
 /* harmony import */ var _resizer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./resizer */ "./src/component/resizer.js");
-/* harmony import */ var _scrollbar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scrollbar */ "./src/component/scrollbar.js");
-/* harmony import */ var _selector__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./selector */ "./src/component/selector.js");
-/* harmony import */ var _editor__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./editor */ "./src/component/editor.js");
-/* harmony import */ var _print__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./print */ "./src/component/print.js");
-/* harmony import */ var _contextmenu__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./contextmenu */ "./src/component/contextmenu.js");
-/* harmony import */ var _table__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./table */ "./src/component/table.js");
-/* harmony import */ var _toolbar_index__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./toolbar/index */ "./src/component/toolbar/index.js");
-/* harmony import */ var _modal_validation__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modal_validation */ "./src/component/modal_validation.js");
-/* harmony import */ var _modal_jumpto__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modal_jumpto */ "./src/component/modal_jumpto.js");
-/* harmony import */ var _sort_filter__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./sort_filter */ "./src/component/sort_filter.js");
-/* harmony import */ var _message__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./message */ "./src/component/message.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../config */ "./src/config.js");
-/* harmony import */ var _core_formula__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../core/formula */ "./src/core/formula.js");
+/* harmony import */ var _selector__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./selector */ "./src/component/selector.js");
+/* harmony import */ var _editor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./editor */ "./src/component/editor.js");
+/* harmony import */ var _print__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./print */ "./src/component/print.js");
+/* harmony import */ var _contextmenu__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./contextmenu */ "./src/component/contextmenu.js");
+/* harmony import */ var _table__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./table */ "./src/component/table.js");
+/* harmony import */ var _toolbar_index__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./toolbar/index */ "./src/component/toolbar/index.js");
+/* harmony import */ var _modal_validation__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modal_validation */ "./src/component/modal_validation.js");
+/* harmony import */ var _modal_jumpto__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modal_jumpto */ "./src/component/modal_jumpto.js");
+/* harmony import */ var _sort_filter__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./sort_filter */ "./src/component/sort_filter.js");
+/* harmony import */ var _message__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./message */ "./src/component/message.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../config */ "./src/config.js");
+/* harmony import */ var _core_formula__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../core/formula */ "./src/core/formula.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -5278,7 +5277,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 /* global window */
 
 
-
+ //import Scrollbar from './scrollbar';
 
 
 
@@ -5336,14 +5335,14 @@ function scrollbarMove() {
   var tableOffset = this.getTableOffset(); // console.log(',l:', l, ', left:', left, ', tOffset.left:', tableOffset.width);
 
   if (Math.abs(left) + width > tableOffset.width) {
-    horizontalScrollbar.move({
+    horizontalScrollbar.scroll({
       left: l + width - tableOffset.width
     });
   } else {
     var fsw = data.freezeTotalWidth();
 
     if (left < fsw) {
-      horizontalScrollbar.move({
+      horizontalScrollbar.scroll({
         left: l - 1 - fsw
       });
     }
@@ -5351,14 +5350,14 @@ function scrollbarMove() {
 
 
   if (Math.abs(top) + height > tableOffset.height) {
-    verticalScrollbar.move({
+    verticalScrollbar.scroll({
       top: t + height - tableOffset.height - 1
     });
   } else {
     var fsh = data.freezeTotalHeight();
 
     if (top < fsh) {
-      verticalScrollbar.move({
+      verticalScrollbar.scroll({
         top: t - 1 - fsh
       });
     }
@@ -5446,7 +5445,7 @@ function selectorMove(multiple, direction) {
 function overlayerMousemove(evt) {
   // console.log('x:', evt.offsetX, ', y:', evt.offsetY);
   if (evt.buttons !== 0) return;
-  if (evt.target.className === "".concat(_config__WEBPACK_IMPORTED_MODULE_14__["cssPrefix"], "-resizer-hover")) return;
+  if (evt.target.className === "".concat(_config__WEBPACK_IMPORTED_MODULE_13__["cssPrefix"], "-resizer-hover")) return;
   var offsetX = evt.offsetX,
       offsetY = evt.offsetY;
   var rowResizer = this.rowResizer,
@@ -5541,7 +5540,7 @@ function overlayerMousescroll(evt) {
         var rh = loopValue(ri, function (i) {
           return rows.getHeight(i);
         });
-        verticalScrollbar.move({
+        verticalScrollbar.scroll({
           top: top + rh - 1
         });
       }
@@ -5554,7 +5553,7 @@ function overlayerMousescroll(evt) {
           return rows.getHeight(i);
         });
 
-        verticalScrollbar.move({
+        verticalScrollbar.scroll({
           top: _ri === 0 ? 0 : top - _rh
         });
       }
@@ -5571,7 +5570,7 @@ function overlayerMousescroll(evt) {
         var cw = loopValue(ci, function (i) {
           return cols.getWidth(i);
         }) / 2;
-        horizontalScrollbar.move({
+        horizontalScrollbar.scroll({
           left: left + cw - 1
         });
       }
@@ -5584,7 +5583,7 @@ function overlayerMousescroll(evt) {
           return cols.getWidth(i);
         }) / 2;
 
-        horizontalScrollbar.move({
+        horizontalScrollbar.scroll({
           left: _ci === 0 ? 0 : left - _cw
         });
       }
@@ -5611,38 +5610,29 @@ function overlayerTouch(direction, distance) {
       left = _horizontalScrollbar$2.left;
 
   if (direction === 'left' || direction === 'right') {
-    horizontalScrollbar.move({
+    horizontalScrollbar.scroll({
       left: left - distance
     });
   } else if (direction === 'up' || direction === 'down') {
-    verticalScrollbar.move({
+    verticalScrollbar.scroll({
       top: top - distance
     });
   }
 }
 
-function verticalScrollbarSet() {
+function setScroll() {
   var data = this.data,
-      verticalScrollbar = this.verticalScrollbar;
+      overlayerEl = this.overlayerEl; //const erth = data.exceptRowTotalHeight(0, -1);
 
-  var _this$getTableOffset = this.getTableOffset(),
-      height = _this$getTableOffset.height;
+  var _ref = [data.cols.totalWidth(), data.rows.totalHeight()],
+      w = _ref[0],
+      h = _ref[1]; // - erth)
+  //console.log('erth:', erth);
 
-  var erth = data.exceptRowTotalHeight(0, -1); //console.log('erth:', erth);
-
-  verticalScrollbar.set(height, data.rows.totalHeight() - erth);
-}
-
-function horizontalScrollbarSet() {
-  var data = this.data,
-      horizontalScrollbar = this.horizontalScrollbar;
-
-  var _this$getTableOffset2 = this.getTableOffset(),
-      width = _this$getTableOffset2.width;
-
-  if (data) {
-    horizontalScrollbar.set(width, data.cols.totalWidth());
-  }
+  overlayerEl.css({
+    '--w': w,
+    '--h': h
+  }, 'px');
 }
 
 function sheetFreeze() {
@@ -5677,8 +5667,7 @@ function sheetReset() {
   overlayerEl.offset(vRect);
   overlayerCEl.offset(tOffset);
   el.css('width', "".concat(vRect.width, "px"));
-  verticalScrollbarSet.call(this);
-  horizontalScrollbarSet.call(this);
+  setScroll.call(this);
   sheetFreeze.call(this);
   toolbar.reset();
   selector.reset();
@@ -5712,7 +5701,7 @@ function paste(what, evt) {
   if (data.settings.mode === 'read') return;
 
   if (data.paste(what, function (msg) {
-    return Object(_message__WEBPACK_IMPORTED_MODULE_13__["xtoast"])('Tip', msg);
+    return Object(_message__WEBPACK_IMPORTED_MODULE_12__["xtoast"])('Tip', msg);
   })) {
     sheetReset.call(this);
   } else if (evt) {
@@ -5759,7 +5748,7 @@ function overlayerMousedown(evt) {
       sortFilter = this.sortFilter;
   var offsetX = evt.offsetX,
       offsetY = evt.offsetY;
-  var isAutofillEl = evt.target.className === "".concat(_config__WEBPACK_IMPORTED_MODULE_14__["cssPrefix"], "-selector-corner");
+  var isAutofillEl = evt.target.className === "".concat(_config__WEBPACK_IMPORTED_MODULE_13__["cssPrefix"], "-selector-corner");
   var cellRect = data.getCellRectByXY(offsetX, offsetY);
   var left = cellRect.left,
       top = cellRect.top,
@@ -5810,7 +5799,7 @@ function overlayerMousedown(evt) {
     }, function () {
       if (isAutofillEl && selector.arange && data.settings.mode !== 'read') {
         if (data.autofill(selector.arange, 'all', function (msg) {
-          return Object(_message__WEBPACK_IMPORTED_MODULE_13__["xtoast"])('Tip', msg);
+          return Object(_message__WEBPACK_IMPORTED_MODULE_12__["xtoast"])('Tip', msg);
         })) {
           table.render();
         }
@@ -5852,30 +5841,25 @@ function editorSet() {
   clearClipboard.call(this);
 }
 
-function verticalScrollbarMove(distance) {
-  var _this3 = this;
+function onScroll(el, sheet) {
+  var data = sheet.data,
+      table = sheet.table,
+      selector = sheet.selector;
+  var scrolled;
+  data.scrollx(el.scrollLeft, function () {
+    return scrolled = 1;
+  });
+  data.scrolly(el.scrollTop, function () {
+    return scrolled = 1;
+  });
 
-  var data = this.data,
-      table = this.table,
-      selector = this.selector;
-  data.scrolly(distance, function () {
+  if (scrolled) {
     selector.resetBRLAreaOffset();
-    editorSetOffset.call(_this3);
+    editorSetOffset.call(sheet);
     table.render();
-  });
-}
+  }
 
-function horizontalScrollbarMove(distance) {
-  var _this4 = this;
-
-  var data = this.data,
-      table = this.table,
-      selector = this.selector;
-  data.scrollx(distance, function () {
-    selector.resetBRTAreaOffset();
-    editorSetOffset.call(_this4);
-    table.render();
-  });
+  ;
 }
 
 function rowResizerFinished(cRect, distance) {
@@ -5886,7 +5870,7 @@ function rowResizerFinished(cRect, distance) {
   data.rows.setHeight(ri, distance);
   table.render();
   selector.resetAreaOffset();
-  verticalScrollbarSet.call(this);
+  setScroll.call(this);
   editorSetOffset.call(this);
 }
 
@@ -5899,7 +5883,7 @@ function colResizerFinished(cRect, distance) {
 
   table.render();
   selector.resetAreaOffset();
-  horizontalScrollbarSet.call(this);
+  setScroll.call(this);
   editorSetOffset.call(this);
 }
 
@@ -6000,7 +5984,7 @@ function sortFilterChange(ci, order, operator, value) {
 }
 
 function sheetInitEvents() {
-  var _this5 = this;
+  var _this3 = this;
 
   var selector = this.selector,
       overlayerEl = this.overlayerEl,
@@ -6016,100 +6000,97 @@ function sheetInitEvents() {
       modalJumpTo = this.modalJumpTo; // overlayer
 
   overlayerEl.on('mousemove', function (evt) {
-    overlayerMousemove.call(_this5, evt);
+    overlayerMousemove.call(_this3, evt);
   }).on('mousedown', function (evt) {
+    var offsetX = evt.offsetX,
+        offsetY = evt.offsetY;
+    if (offsetX > overlayerEl.clientWidth || offsetY > overlayerEl.clientHeight) return;
     editor.clear();
     contextMenu.hide(); // the left mouse button: mousedown → mouseup → click
     // the right mouse button: mousedown → contenxtmenu → mouseup
 
     if (evt.buttons === 2) {
-      if (_this5.data.xyInSelectedRect(evt.offsetX, evt.offsetY)) {
-        contextMenu.setPosition(evt.offsetX, evt.offsetY);
+      if (_this3.data.xyInSelectedRect(offsetX, offsetY)) {
+        contextMenu.setPosition(offsetX, offsetY);
       } else {
-        overlayerMousedown.call(_this5, evt);
-        contextMenu.setPosition(evt.offsetX, evt.offsetY);
+        overlayerMousedown.call(_this3, evt);
+        contextMenu.setPosition(offsetX, offsetY);
       }
 
       evt.stopPropagation();
     } else if (evt.detail === 2) {
-      editorSet.call(_this5);
+      editorSet.call(_this3);
     } else {
-      overlayerMousedown.call(_this5, evt);
+      overlayerMousedown.call(_this3, evt);
     }
-  }).on('mousewheel.stop', function (evt) {
-    overlayerMousescroll.call(_this5, evt);
   }).on('mouseout', function (evt) {
     var offsetX = evt.offsetX,
         offsetY = evt.offsetY;
     if (offsetY <= 0) colResizer.hide();
     if (offsetX <= 0) rowResizer.hide();
-  });
+  }).on('scroll', function (e) {
+    //if (e.target != overlayerEl) return;
+    onScroll(overlayerEl.el, _this3);
+  }); // .on('mousewheel.stop', (evt) => {
+  //   overlayerMousescroll.call(this, evt);
+  // })
 
   selector.inputChange = function (v) {
-    dataSetCellText.call(_this5, v, 'input');
-    editorSet.call(_this5);
+    dataSetCellText.call(_this3, v, 'input');
+    editorSet.call(_this3);
   }; // slide on mobile
+  // bindTouch(overlayerEl.el, {
+  //   move: (direction, d) => {
+  //     overlayerTouch.call(this, direction, d);
+  //   },
+  // });
+  // toolbar change
 
-
-  Object(_event__WEBPACK_IMPORTED_MODULE_1__["bindTouch"])(overlayerEl.el, {
-    move: function move(direction, d) {
-      overlayerTouch.call(_this5, direction, d);
-    }
-  }); // toolbar change
 
   toolbar.change = function (type, value) {
-    return toolbarChange.call(_this5, type, value);
+    return toolbarChange.call(_this3, type, value);
   }; // sort filter ok
 
 
   sortFilter.ok = function (ci, order, o, v) {
-    return sortFilterChange.call(_this5, ci, order, o, v);
+    return sortFilterChange.call(_this3, ci, order, o, v);
   }; // resizer finished callback
 
 
   rowResizer.finishedFn = function (cRect, distance) {
-    rowResizerFinished.call(_this5, cRect, distance);
+    rowResizerFinished.call(_this3, cRect, distance);
   };
 
   colResizer.finishedFn = function (cRect, distance) {
-    colResizerFinished.call(_this5, cRect, distance);
+    colResizerFinished.call(_this3, cRect, distance);
   }; // resizer unhide callback
 
 
   rowResizer.unhideFn = function (index) {
-    unhideRowsOrCols.call(_this5, 'row', index);
+    unhideRowsOrCols.call(_this3, 'row', index);
   };
 
   colResizer.unhideFn = function (index) {
-    unhideRowsOrCols.call(_this5, 'col', index);
-  }; // scrollbar move callback
-
-
-  verticalScrollbar.moveFn = function (distance, evt) {
-    verticalScrollbarMove.call(_this5, distance, evt);
-  };
-
-  horizontalScrollbar.moveFn = function (distance, evt) {
-    horizontalScrollbarMove.call(_this5, distance, evt);
+    unhideRowsOrCols.call(_this3, 'col', index);
   }; // editor
 
 
   editor.change = function (state, itext) {
-    dataSetCellText.call(_this5, itext, state);
+    dataSetCellText.call(_this3, itext, state);
   }; // modal validation
 
 
   modalValidation.change = function (action) {
     if (action === 'save') {
-      var _this5$data;
+      var _this3$data;
 
       for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
         args[_key2 - 1] = arguments[_key2];
       }
 
-      (_this5$data = _this5.data).addValidation.apply(_this5$data, args);
+      (_this3$data = _this3.data).addValidation.apply(_this3$data, args);
     } else {
-      _this5.data.removeValidation();
+      _this3.data.removeValidation();
     }
   }; //JumpToRow Modal
 
@@ -6119,47 +6100,47 @@ function sheetInitEvents() {
       row = 1;
     }
 
-    selectorSet.call(_this5, false, Number(row) - 1, 0);
-    _this5.overlayerCEl.el.scrollTop = 0;
-    scrollbarMove.call(_this5);
+    selectorSet.call(_this3, false, Number(row) - 1, 0);
+    _this3.overlayerCEl.el.scrollTop = 0;
+    scrollbarMove.call(_this3);
   }; // contextmenu
 
 
   contextMenu.itemClick = function (type) {
     // console.log('type:', type);
     if (type === 'validation') {
-      modalValidation.setValue(_this5.data.getSelectedValidation());
+      modalValidation.setValue(_this3.data.getSelectedValidation());
     } else if (type === 'copy') {
-      copy.call(_this5);
+      copy.call(_this3);
     } else if (type === 'cut') {
-      cut.call(_this5);
+      cut.call(_this3);
     } else if (type === 'paste') {
-      paste.call(_this5, 'all');
+      paste.call(_this3, 'all');
     } else if (type === 'paste-value') {
-      paste.call(_this5, 'text');
+      paste.call(_this3, 'text');
     } else if (type === 'paste-format') {
-      paste.call(_this5, 'format');
+      paste.call(_this3, 'format');
     } else if (type === 'hide') {
-      hideRowsOrCols.call(_this5);
+      hideRowsOrCols.call(_this3);
     } else {
-      insertDeleteRowColumn.call(_this5, type);
+      insertDeleteRowColumn.call(_this3, type);
     }
   };
 
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'resize', function () {
-    _this5.reload();
+    _this3.reload();
   });
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'click', function (evt) {
-    _this5.focusing = overlayerEl.contains(evt.target);
+    _this3.focusing = overlayerEl.contains(evt.target);
   });
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'paste', function (evt) {
-    if (!_this5.focusing) return;
-    paste.call(_this5, 'all', evt);
+    if (!_this3.focusing) return;
+    paste.call(_this3, 'all', evt);
     evt.preventDefault();
   }); // for selector
 
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'keydown', function (evt) {
-    if (!_this5.focusing) return;
+    if (!_this3.focusing) return;
     var keyCode = evt.keyCode || evt.which;
     var key = evt.key,
         ctrlKey = evt.ctrlKey,
@@ -6174,27 +6155,27 @@ function sheetInitEvents() {
       switch (keyCode) {
         case 90:
           // undo: ctrl + z
-          _this5.undo();
+          _this3.undo();
 
           evt.preventDefault();
           break;
 
         case 89:
           // redo: ctrl + y
-          _this5.redo();
+          _this3.redo();
 
           evt.preventDefault();
           break;
 
         case 67:
           // ctrl + c
-          copy.call(_this5);
+          copy.call(_this3);
           evt.preventDefault();
           break;
 
         case 88:
           // ctrl + x
-          cut.call(_this5);
+          cut.call(_this3);
           evt.preventDefault();
           break;
 
@@ -6212,31 +6193,31 @@ function sheetInitEvents() {
 
         case 37:
           // ctrl + left
-          selectorMove.call(_this5, shiftKey, 'row-first');
+          selectorMove.call(_this3, shiftKey, 'row-first');
           evt.preventDefault();
           break;
 
         case 38:
           // ctrl + up
-          selectorMove.call(_this5, shiftKey, 'col-first');
+          selectorMove.call(_this3, shiftKey, 'col-first');
           evt.preventDefault();
           break;
 
         case 39:
           // ctrl + right
-          selectorMove.call(_this5, shiftKey, 'row-last');
+          selectorMove.call(_this3, shiftKey, 'row-last');
           evt.preventDefault();
           break;
 
         case 40:
           // ctrl + down
-          selectorMove.call(_this5, shiftKey, 'col-last');
+          selectorMove.call(_this3, shiftKey, 'col-last');
           evt.preventDefault();
           break;
 
         case 32:
           // ctrl + space, all cells in col
-          selectorSet.call(_this5, false, -1, _this5.data.selector.ci, false);
+          selectorSet.call(_this3, false, -1, _this3.data.selector.ci, false);
           evt.preventDefault();
           break;
 
@@ -6259,7 +6240,7 @@ function sheetInitEvents() {
         case 32:
           if (shiftKey) {
             // shift + space, all cells in row
-            selectorSet.call(_this5, false, _this5.data.selector.ri, -1, false);
+            selectorSet.call(_this3, false, _this3.data.selector.ri, -1, false);
           }
 
           break;
@@ -6267,30 +6248,30 @@ function sheetInitEvents() {
         case 27:
           // esc
           contextMenu.hide();
-          clearClipboard.call(_this5);
+          clearClipboard.call(_this3);
           break;
 
         case 37:
           // left
-          selectorMove.call(_this5, shiftKey, 'left');
+          selectorMove.call(_this3, shiftKey, 'left');
           evt.preventDefault();
           break;
 
         case 38:
           // up
-          selectorMove.call(_this5, shiftKey, 'up');
+          selectorMove.call(_this3, shiftKey, 'up');
           evt.preventDefault();
           break;
 
         case 39:
           // right
-          selectorMove.call(_this5, shiftKey, 'right');
+          selectorMove.call(_this3, shiftKey, 'right');
           evt.preventDefault();
           break;
 
         case 40:
           // down
-          selectorMove.call(_this5, shiftKey, 'down');
+          selectorMove.call(_this3, shiftKey, 'down');
           evt.preventDefault();
           break;
 
@@ -6299,7 +6280,7 @@ function sheetInitEvents() {
           editor.clear(); // shift + tab => move left
           // tab => move right
 
-          selectorMove.call(_this5, false, shiftKey ? 'left' : 'right');
+          selectorMove.call(_this3, false, shiftKey ? 'left' : 'right');
           evt.preventDefault();
           break;
 
@@ -6308,13 +6289,13 @@ function sheetInitEvents() {
           editor.clear(); // shift + enter => move up
           // enter => move down
 
-          selectorMove.call(_this5, false, shiftKey ? 'up' : 'down');
+          selectorMove.call(_this3, false, shiftKey ? 'up' : 'down');
           evt.preventDefault();
           break;
 
         case 8:
           // backspace
-          insertDeleteRowColumn.call(_this5, 'delete-cell-text');
+          insertDeleteRowColumn.call(_this3, 'delete-cell-text');
           evt.preventDefault();
           break;
 
@@ -6323,14 +6304,14 @@ function sheetInitEvents() {
       }
 
       if (key === 'Delete') {
-        insertDeleteRowColumn.call(_this5, 'delete-cell-text');
+        insertDeleteRowColumn.call(_this3, 'delete-cell-text');
         evt.preventDefault();
       } else if (keyCode >= 65 && keyCode <= 90 || keyCode >= 48 && keyCode <= 57 || keyCode >= 96 && keyCode <= 105 || evt.key === '=') {
-        dataSetCellText.call(_this5, evt.key, 'input');
-        editorSet.call(_this5);
+        dataSetCellText.call(_this3, evt.key, 'input');
+        editorSet.call(_this3);
       } else if (keyCode === 113) {
         // F2
-        editorSet.call(_this5);
+        editorSet.call(_this3);
       }
     }
   });
@@ -6340,7 +6321,7 @@ var Sheet =
 /*#__PURE__*/
 function () {
   function Sheet(targetEl, data) {
-    var _this6 = this;
+    var _this4 = this;
 
     _classCallCheck(this, Sheet);
 
@@ -6349,43 +6330,43 @@ function () {
         view = _data$settings.view,
         showToolbar = _data$settings.showToolbar,
         showContextmenu = _data$settings.showContextmenu;
-    this.el = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_14__["cssPrefix"], "-sheet"));
-    this.toolbar = new _toolbar_index__WEBPACK_IMPORTED_MODULE_9__["default"](data, view.width, !showToolbar);
-    this.print = new _print__WEBPACK_IMPORTED_MODULE_6__["default"](data);
+    this.el = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_13__["cssPrefix"], "-sheet"));
+    this.toolbar = new _toolbar_index__WEBPACK_IMPORTED_MODULE_8__["default"](data, view.width, !showToolbar);
+    this.print = new _print__WEBPACK_IMPORTED_MODULE_5__["default"](data);
     targetEl.children(this.toolbar.el, this.el, this.print.el);
     this.data = data; // table
 
-    this.tableEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('canvas', "".concat(_config__WEBPACK_IMPORTED_MODULE_14__["cssPrefix"], "-table")); // resizer
+    this.tableEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('canvas', "".concat(_config__WEBPACK_IMPORTED_MODULE_13__["cssPrefix"], "-table")); // resizer
 
     this.rowResizer = new _resizer__WEBPACK_IMPORTED_MODULE_2__["default"](false, data.rows.height);
     this.colResizer = new _resizer__WEBPACK_IMPORTED_MODULE_2__["default"](true, data.cols.minWidth); // scrollbar
+    // editor
 
-    this.verticalScrollbar = new _scrollbar__WEBPACK_IMPORTED_MODULE_3__["default"](true);
-    this.horizontalScrollbar = new _scrollbar__WEBPACK_IMPORTED_MODULE_3__["default"](false); // editor
-
-    this.editor = new _editor__WEBPACK_IMPORTED_MODULE_5__["default"](_core_formula__WEBPACK_IMPORTED_MODULE_15__["formulas"], function () {
-      return _this6.getTableOffset();
+    this.editor = new _editor__WEBPACK_IMPORTED_MODULE_4__["default"](_core_formula__WEBPACK_IMPORTED_MODULE_14__["formulas"], function () {
+      return _this4.getTableOffset();
     }, data.rows.height); //modal JumpTo
 
-    this.modalJumpTo = new _modal_jumpto__WEBPACK_IMPORTED_MODULE_11__["default"](); // data validation
+    this.modalJumpTo = new _modal_jumpto__WEBPACK_IMPORTED_MODULE_10__["default"](); // data validation
 
-    this.modalValidation = new _modal_validation__WEBPACK_IMPORTED_MODULE_10__["default"](); // contextMenu
+    this.modalValidation = new _modal_validation__WEBPACK_IMPORTED_MODULE_9__["default"](); // contextMenu
 
-    this.contextMenu = new _contextmenu__WEBPACK_IMPORTED_MODULE_7__["default"](function () {
-      return _this6.getRect();
+    this.contextMenu = new _contextmenu__WEBPACK_IMPORTED_MODULE_6__["default"](function () {
+      return _this4.getRect();
     }, !showContextmenu); // selector
 
-    this.selector = new _selector__WEBPACK_IMPORTED_MODULE_4__["default"](data);
-    this.overlayerCEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_14__["cssPrefix"], "-overlayer-content")).children(this.editor.el, this.selector.el);
-    this.overlayerEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_14__["cssPrefix"], "-overlayer")).child(this.overlayerCEl); // sortFilter
+    this.selector = new _selector__WEBPACK_IMPORTED_MODULE_3__["default"](data);
+    this.overlayerCEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_13__["cssPrefix"], "-overlayer-content")).children(this.editor.el, this.selector.el);
+    this.verticalScrollbar = //new Scrollbar(true);
+    this.horizontalScrollbar = //new Scrollbar(false);
+    this.overlayerEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_13__["cssPrefix"], "-overlayer")).child(this.overlayerCEl).child(this.contentEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', '')); // sortFilter
 
-    this.sortFilter = new _sort_filter__WEBPACK_IMPORTED_MODULE_12__["default"](); // root element
+    this.sortFilter = new _sort_filter__WEBPACK_IMPORTED_MODULE_11__["default"](); // root element
 
     this.el.children(this.tableEl, this.overlayerEl.el, this.rowResizer.el, this.colResizer.el, // this.verticalScrollbar.el,
     // this.horizontalScrollbar.el,
     this.contextMenu.el, this.modalValidation.el, this.sortFilter.el, this.modalJumpTo.el); // table
 
-    this.table = new _table__WEBPACK_IMPORTED_MODULE_8__["default"](this.tableEl.el, data);
+    this.table = new _table__WEBPACK_IMPORTED_MODULE_7__["default"](this.tableEl.el, data);
     sheetInitEvents.call(this);
     sheetReset.call(this); // init selector [0, 0]
 
@@ -6423,8 +6404,7 @@ function () {
       this.editor.clear(); // after
 
       this.data = data;
-      verticalScrollbarSet.call(this);
-      horizontalScrollbarSet.call(this);
+      setScroll.call(this);
       this.toolbar.resetData(data);
       this.print.resetData(data);
       this.selector.resetData(data);
