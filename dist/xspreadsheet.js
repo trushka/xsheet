@@ -3113,15 +3113,15 @@ function () {
     value: function css(name, value) {
       var _this5 = this;
 
-      if (value === undefined && typeof name !== 'string') {
+      if (typeof name !== 'string') {
         Object.keys(name).forEach(function (k) {
-          _this5.el.style[k] = name[k];
+          _this5.el.style.setProperty(k, name[k] + (value || ''));
         });
         return this;
       }
 
       if (value !== undefined) {
-        this.el.style[name] = value;
+        this.el.style.setProperty(name, value);
         return this;
       }
 
@@ -6381,7 +6381,9 @@ function () {
 
     this.sortFilter = new _sort_filter__WEBPACK_IMPORTED_MODULE_12__["default"](); // root element
 
-    this.el.children(this.tableEl, this.overlayerEl.el, this.rowResizer.el, this.colResizer.el, this.verticalScrollbar.el, this.horizontalScrollbar.el, this.contextMenu.el, this.modalValidation.el, this.sortFilter.el, this.modalJumpTo.el); // table
+    this.el.children(this.tableEl, this.overlayerEl.el, this.rowResizer.el, this.colResizer.el, // this.verticalScrollbar.el,
+    // this.horizontalScrollbar.el,
+    this.contextMenu.el, this.modalValidation.el, this.sortFilter.el, this.modalJumpTo.el); // table
 
     this.table = new _table__WEBPACK_IMPORTED_MODULE_8__["default"](this.tableEl.el, data);
     sheetInitEvents.call(this);
@@ -14272,8 +14274,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _component_bottombar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./component/bottombar */ "./src/component/bottombar.js");
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./config */ "./src/config.js");
 /* harmony import */ var _locale_locale__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./locale/locale */ "./src/locale/locale.js");
-/* harmony import */ var _index_less__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./index.less */ "./src/index.less");
-/* harmony import */ var _index_less__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_index_less__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _index_scss__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./index.scss */ "./src/index.scss");
+/* harmony import */ var _index_scss__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_index_scss__WEBPACK_IMPORTED_MODULE_6__);
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -14481,9 +14483,9 @@ if (window) {
 
 /***/ }),
 
-/***/ "./src/index.less":
+/***/ "./src/index.scss":
 /*!************************!*\
-  !*** ./src/index.less ***!
+  !*** ./src/index.scss ***!
   \************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {

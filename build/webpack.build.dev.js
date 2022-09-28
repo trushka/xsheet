@@ -8,7 +8,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = merge(common, {
   mode: 'development',//'production',
   watch: true,
-  devtool: 'source-map',
+  devtool: 'nosources-source-map',
   plugins: [
     new CleanWebpackPlugin(['dist']),
     //  you should know that the HtmlWebpackPlugin by default will generate its own index.html
@@ -26,6 +26,12 @@ module.exports = merge(common, {
   ],
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, '../dist'),
+    //path: path.resolve(__dirname, '../dist'),
+    devtoolModuleFilenameTemplate: (info) => {
+      var path=info.resourcePath
+      if (/\.scss/.test(info.resourcePath)) 
+        console.log(`${info.resourcePath}, ${path=path.replace(/\.\/src.+\/src\//, './src/')}`);
+      return `webpack:///${info.resourcePath=path}`;
+    }
   },
 });
