@@ -5624,10 +5624,8 @@ function setScroll() {
   var data = this.data,
       overlayerEl = this.overlayerEl; //const erth = data.exceptRowTotalHeight(0, -1);
 
-  var _ref = [data.cols.totalWidth(), data.rows.totalHeight()],
-      w = _ref[0],
-      h = _ref[1]; // - erth)
-  //console.log('erth:', erth);
+  var w = data.cols.totalWidth() + data.cols.indexWidth,
+      h = data.rows.totalHeight() + data.rows.height; //console.log('erth:', erth);
 
   overlayerEl.css({
     '--w': w,
@@ -5841,19 +5839,19 @@ function editorSet() {
   clearClipboard.call(this);
 }
 
-function onScroll(el, sheet) {
-  var data = sheet.data,
+function onScroll(sheet, update) {
+  var overlayerEl = sheet.overlayerEl,
+      data = sheet.data,
       table = sheet.table,
       selector = sheet.selector;
-  var scrolled;
-  data.scrollx(el.scrollLeft, function () {
-    return scrolled = 1;
+  data.scrollx(overlayerEl.el.scrollLeft, function () {
+    return update = 1;
   });
-  data.scrolly(el.scrollTop, function () {
-    return scrolled = 1;
+  data.scrolly(overlayerEl.el.scrollTop, function () {
+    return update = 1;
   });
 
-  if (scrolled) {
+  if (update) {
     selector.resetBRLAreaOffset();
     editorSetOffset.call(sheet);
     table.render();
@@ -6004,7 +6002,7 @@ function sheetInitEvents() {
   }).on('mousedown', function (evt) {
     var offsetX = evt.offsetX,
         offsetY = evt.offsetY;
-    if (offsetX > overlayerEl.clientWidth || offsetY > overlayerEl.clientHeight) return;
+    if (offsetX > overlayerEl.el.clientWidth || offsetY > overlayerEl.el.clientHeight) return;
     editor.clear();
     contextMenu.hide(); // the left mouse button: mousedown → mouseup → click
     // the right mouse button: mousedown → contenxtmenu → mouseup
@@ -6030,7 +6028,7 @@ function sheetInitEvents() {
     if (offsetX <= 0) rowResizer.hide();
   }).on('scroll', function (e) {
     //if (e.target != overlayerEl) return;
-    onScroll(overlayerEl.el, _this3);
+    onScroll(_this3);
   }); // .on('mousewheel.stop', (evt) => {
   //   overlayerMousescroll.call(this, evt);
   // })
@@ -6425,6 +6423,7 @@ function () {
       var data = this.data;
       data.setFreeze(ri, ci);
       sheetReset.call(this);
+      onScroll(this, true);
       return this;
     }
   }, {

@@ -253,7 +253,9 @@ function overlayerTouch(direction, distance) {
 function setScroll() {
   const { data, overlayerEl } = this;
   //const erth = data.exceptRowTotalHeight(0, -1);
-  const [w, h] = [data.cols.totalWidth(), data.rows.totalHeight()];// - erth)
+  const
+    w = data.cols.totalWidth() + data.cols.indexWidth,
+    h = data.rows.totalHeight() + data.rows.height;
   //console.log('erth:', erth);
   overlayerEl.css({'--w': w, '--h': h}, 'px')
 }
@@ -432,12 +434,11 @@ function editorSet() {
   clearClipboard.call(this);
 }
 
-function onScroll(el, sheet) {
-  const { data, table, selector } = sheet;
-  let scrolled;
-  data.scrollx(el.scrollLeft, () => scrolled=1)
-  data.scrolly(el.scrollTop, () => scrolled=1)
-  if (scrolled) {
+function onScroll(sheet, update) {
+  const { overlayerEl, data, table, selector} = sheet;
+  data.scrollx(overlayerEl.el.scrollLeft, () => update=1)
+  data.scrolly(overlayerEl.el.scrollTop, () => update=1)
+  if (update) {
     selector.resetBRLAreaOffset();
     editorSetOffset.call(sheet);
     table.render();
@@ -574,7 +575,7 @@ function sheetInitEvents() {
     })
     .on('mousedown', (evt) => {
       const {offsetX, offsetY} = evt;
-      if (offsetX > overlayerEl.clientWidth || offsetY > overlayerEl.clientHeight) return;
+      if (offsetX > overlayerEl.el.clientWidth || offsetY > overlayerEl.el.clientHeight) return;
       editor.clear();
       contextMenu.hide();
       // the left mouse button: mousedown → mouseup → click
@@ -600,7 +601,7 @@ function sheetInitEvents() {
     })
     .on('scroll', (e) => {
       //if (e.target != overlayerEl) return;
-      onScroll(overlayerEl.el, this)
+      onScroll(this)
     });
     // .on('mousewheel.stop', (evt) => {
     //   overlayerMousescroll.call(this, evt);
@@ -947,6 +948,7 @@ export default class Sheet {
     const { data } = this;
     data.setFreeze(ri, ci);
     sheetReset.call(this);
+    onScroll(this, true);
     return this;
   }
 
