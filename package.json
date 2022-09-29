@@ -28,6 +28,7 @@
   "scripts": {
     "dev": "webpack-dev-server --open --config build/webpack.dev.js",
     "build": "webpack --config build/webpack.prod.js",
+    "dev1": "webpack --config build/webpack.build.dev.js",
     "build-locale": "webpack --config build/webpack.locale.js",
     "lint": "./node_modules/eslint/bin/eslint.js src",
     "test": "nyc ./node_modules/mocha/bin/mocha --require @babel/register --recursive test",
@@ -58,8 +59,10 @@
     "mini-css-extract-plugin": "^0.4.4",
     "mocha": "^5.2.0",
     "nyc": "^13.3.0",
+    "sass": "^1.55.0",
+    "sass-loader": "^10.1.1",
     "style-loader": "^0.23.0",
-    "webpack": "^4.29.6",
+    "webpack": "^4.46.0",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.10.2",
     "webpack-merge": "^4.1.4"

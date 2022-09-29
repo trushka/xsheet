@@ -8,12 +8,12 @@ function thinLineWidth() {
 }
 
 function npx(px) {
-  return parseInt(px * dpr(), 10);
+  return Math.ceil(px * dpr())//parseInt(, 10);
 }
 
 function npxLine(px) {
-  const n = npx(px);
-  return n > 0 ? n - 0.5 : 0.5;
+  return npx(px)-.5;
+  //return n > 0 ? n - 0.5 : 0.5;
 }
 
 class DrawBox {
@@ -409,6 +409,13 @@ class Draw {
     ctx.fill();
     dtextcb();
     ctx.restore();
+  }
+
+  clipRect(...args) {
+    const { ctx } = this;
+    ctx.rect(...args.map(npx));
+    ctx.clip();
+    return this
   }
 }
 

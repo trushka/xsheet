@@ -2,7 +2,7 @@
 import { h } from './element';
 import { bind, mouseMoveUp, bindTouch, createEventEmitter } from './event';
 import Resizer from './resizer';
-import Scrollbar from './scrollbar';
+//import Scrollbar from './scrollbar';
 import Selector from './selector';
 import Editor from './editor';
 import Print from './print';
@@ -45,20 +45,20 @@ function scrollbarMove() {
   const tableOffset = this.getTableOffset();
   // console.log(',l:', l, ', left:', left, ', tOffset.left:', tableOffset.width);
   if (Math.abs(left) + width > tableOffset.width) {
-    horizontalScrollbar.move({ left: l + width - tableOffset.width });
+    horizontalScrollbar.scroll({ left: l + width - tableOffset.width });
   } else {
     const fsw = data.freezeTotalWidth();
     if (left < fsw) {
-      horizontalScrollbar.move({ left: l - 1 - fsw });
+      horizontalScrollbar.scroll({ left: l - 1 - fsw });
     }
   }
   // console.log('top:', top, ', height:', height, ', tof.height:', tableOffset.height);
   if (Math.abs(top) + height > tableOffset.height) {
-    verticalScrollbar.move({ top: t + height - tableOffset.height - 1 });
+    verticalScrollbar.scroll({ top: t + height - tableOffset.height - 1 });
   } else {
     const fsh = data.freezeTotalHeight();
     if (top < fsh) {
-      verticalScrollbar.move({ top: t - 1 - fsh });
+      verticalScrollbar.scroll({ top: t - 1 - fsh });
     }
   }
 }
@@ -198,14 +198,14 @@ function overlayerMousescroll(evt) {
       const ri = data.scroll.ri + 1;
       if (ri < rows.len) {
         const rh = loopValue(ri, i => rows.getHeight(i));
-        verticalScrollbar.move({ top: top + rh - 1 });
+        verticalScrollbar.scroll({ top: top + rh - 1 });
       }
     } else {
       // down
       const ri = data.scroll.ri - 1;
       if (ri >= 0) {
         const rh = loopValue(ri, i => rows.getHeight(i));
-        verticalScrollbar.move({ top: ri === 0 ? 0 : top - rh });
+        verticalScrollbar.scroll({ top: ri === 0 ? 0 : top - rh });
       }
     }
   };
@@ -217,21 +217,21 @@ function overlayerMousescroll(evt) {
       const ci = data.scroll.ci + 1;
       if (ci < cols.len) {
         const cw = loopValue(ci, i => cols.getWidth(i))/2;
-        horizontalScrollbar.move({ left: left + cw - 1 });
+        horizontalScrollbar.scroll({ left: left + cw - 1 });
       }
     } else {
       // right
       const ci = data.scroll.ci - 1;
       if (ci >= 0) {
         const cw = loopValue(ci, i => cols.getWidth(i))/2;
-        horizontalScrollbar.move({ left: ci === 0 ? 0 : left - cw });
+        horizontalScrollbar.scroll({ left: ci === 0 ? 0 : left - cw });
       }
     }
   };
   const tempY = Math.abs(deltaY);
   const tempX = Math.abs(deltaX/10);
   const temp = Math.max(tempY, tempX);
-  console.log('dX tX t:', deltaX, tempX, temp);
+  //console.log('dX tX t:', deltaX, tempX, temp);
   // detail for windows/mac firefox vertical scroll
   if (/Firefox/i.test(window.navigator.userAgent)) throttle(moveY(evt.detail), 50);
   if (temp === tempX) throttle(moveX(deltaX/10), 500);
@@ -244,26 +244,23 @@ function overlayerTouch(direction, distance) {
   const { left } = horizontalScrollbar.scroll();
 
   if (direction === 'left' || direction === 'right') {
-    horizontalScrollbar.move({ left: left - distance });
+    horizontalScrollbar.scroll({ left: left - distance });
   } else if (direction === 'up' || direction === 'down') {
-    verticalScrollbar.move({ top: top - distance });
+    verticalScrollbar.scroll({ top: top - distance });
   }
 }
 
-function verticalScrollbarSet() {
-  const { data, verticalScrollbar } = this;
-  const { height } = this.getTableOffset();
-  const erth = data.exceptRowTotalHeight(0, -1);
+function setScroll() {
+  const { data, overlayerEl } = this;
+  //const erth = data.exceptRowTotalHeight(0, -1);
+  const
+    width = data.cols.totalWidth(),
+    height = data.rows.totalHeight(),
+    w = width + data.cols.indexWidth,
+    h = height + data.rows.height;
   //console.log('erth:', erth);
-  verticalScrollbar.set(height, data.rows.totalHeight() - erth);
-}
-
-function horizontalScrollbarSet() {
-  const { data, horizontalScrollbar } = this;
-  const { width } = this.getTableOffset();
-  if (data) {
-    horizontalScrollbar.set(width, data.cols.totalWidth());
-  }
+  overlayerEl.css({'--w': w, '--h': h}, 'px')
+  data.contSize = {width, height}
 }
 
 function sheetFreeze() {
@@ -295,12 +292,11 @@ function sheetReset() {
   overlayerEl.offset(vRect);
   overlayerCEl.offset(tOffset);
   el.css('width', `${vRect.width}px`);
-  verticalScrollbarSet.call(this);
-  horizontalScrollbarSet.call(this);
+  setScroll.call(this);
   sheetFreeze.call(this);
-  table.render();
   toolbar.reset();
   selector.reset();
+  table.render();
 }
 
 function clearClipboard() {
@@ -441,22 +437,16 @@ function editorSet() {
   clearClipboard.call(this);
 }
 
-function verticalScrollbarMove(distance) {
-  const { data, table, selector } = this;
-  data.scrolly(distance, () => {
+function onScroll(sheet, update) {
+  const { overlayerEl, data, table, selector} = sheet;
+  data.scrollx(overlayerEl.el.scrollLeft, () => update=1)
+  data.scrolly(overlayerEl.el.scrollTop, () => update=1)
+  if (update) {
     selector.resetBRLAreaOffset();
-    editorSetOffset.call(this);
-    table.render();
-  });
-}
-
-function horizontalScrollbarMove(distance) {
-  const { data, table, selector } = this;
-  data.scrollx(distance, () => {
     selector.resetBRTAreaOffset();
-    editorSetOffset.call(this);
+    editorSetOffset.call(sheet);
     table.render();
-  });
+  };
 }
 
 function rowResizerFinished(cRect, distance) {
@@ -465,7 +455,7 @@ function rowResizerFinished(cRect, distance) {
   data.rows.setHeight(ri, distance);
   table.render();
   selector.resetAreaOffset();
-  verticalScrollbarSet.call(this);
+  setScroll.call(this);
   editorSetOffset.call(this);
 }
 
@@ -476,7 +466,7 @@ function colResizerFinished(cRect, distance) {
   // console.log('data:', data);
   table.render();
   selector.resetAreaOffset();
-  horizontalScrollbarSet.call(this);
+  setScroll.call(this);
   editorSetOffset.call(this);
 }
 
@@ -588,16 +578,18 @@ function sheetInitEvents() {
       overlayerMousemove.call(this, evt);
     })
     .on('mousedown', (evt) => {
+      const {offsetX, offsetY} = evt;
+      if (offsetX > overlayerEl.el.clientWidth || offsetY > overlayerEl.el.clientHeight) return;
       editor.clear();
       contextMenu.hide();
       // the left mouse button: mousedown → mouseup → click
       // the right mouse button: mousedown → contenxtmenu → mouseup
       if (evt.buttons === 2) {
-        if (this.data.xyInSelectedRect(evt.offsetX, evt.offsetY)) {
-          contextMenu.setPosition(evt.offsetX, evt.offsetY);
+        if (this.data.xyInSelectedRect(offsetX, offsetY)) {
+          contextMenu.setPosition(offsetX, offsetY);
         } else {
           overlayerMousedown.call(this, evt);
-          contextMenu.setPosition(evt.offsetX, evt.offsetY);
+          contextMenu.setPosition(offsetX, offsetY);
         }
         evt.stopPropagation();
       } else if (evt.detail === 2) {
@@ -606,14 +598,18 @@ function sheetInitEvents() {
         overlayerMousedown.call(this, evt);
       }
     })
-    .on('mousewheel.stop', (evt) => {
-      overlayerMousescroll.call(this, evt);
-    })
     .on('mouseout', (evt) => {
       const { offsetX, offsetY } = evt;
       if (offsetY <= 0) colResizer.hide();
       if (offsetX <= 0) rowResizer.hide();
+    })
+    .on('scroll', (e) => {
+      //if (e.target != overlayerEl) return;
+      onScroll(this)
     });
+    // .on('mousewheel.stop', (evt) => {
+    //   overlayerMousescroll.call(this, evt);
+    // })
 
   selector.inputChange = (v) => {
     dataSetCellText.call(this, v, 'input');
@@ -621,11 +617,11 @@ function sheetInitEvents() {
   };
 
   // slide on mobile
-  bindTouch(overlayerEl.el, {
-    move: (direction, d) => {
-      overlayerTouch.call(this, direction, d);
-    },
-  });
+  // bindTouch(overlayerEl.el, {
+  //   move: (direction, d) => {
+  //     overlayerTouch.call(this, direction, d);
+  //   },
+  // });
 
   // toolbar change
   toolbar.change = (type, value) => toolbarChange.call(this, type, value);
@@ -646,13 +642,6 @@ function sheetInitEvents() {
   };
   colResizer.unhideFn = (index) => {
     unhideRowsOrCols.call(this, 'col', index);
-  };
-  // scrollbar move callback
-  verticalScrollbar.moveFn = (distance, evt) => {
-    verticalScrollbarMove.call(this, distance, evt);
-  };
-  horizontalScrollbar.moveFn = (distance, evt) => {
-    horizontalScrollbarMove.call(this, distance, evt);
   };
   // editor
   editor.change = (state, itext) => {
@@ -875,8 +864,6 @@ export default class Sheet {
     this.rowResizer = new Resizer(false, data.rows.height);
     this.colResizer = new Resizer(true, data.cols.minWidth);
     // scrollbar
-    this.verticalScrollbar = new Scrollbar(true);
-    this.horizontalScrollbar = new Scrollbar(false);
     // editor
     this.editor = new Editor(
       formulas,
@@ -896,8 +883,12 @@ export default class Sheet {
         this.editor.el,
         this.selector.el,
       );
+
+    this.verticalScrollbar = //new Scrollbar(true);
+    this.horizontalScrollbar = //new Scrollbar(false);
     this.overlayerEl = h('div', `${cssPrefix}-overlayer`)
-      .child(this.overlayerCEl);
+      .child(this.overlayerCEl)
+      .child(this.contentEl = h('div', ''));
     // sortFilter
     this.sortFilter = new SortFilter();
     // root element
@@ -906,8 +897,8 @@ export default class Sheet {
       this.overlayerEl.el,
       this.rowResizer.el,
       this.colResizer.el,
-      this.verticalScrollbar.el,
-      this.horizontalScrollbar.el,
+      // this.verticalScrollbar.el,
+      // this.horizontalScrollbar.el,
       this.contextMenu.el,
       this.modalValidation.el,
       this.sortFilter.el,
@@ -942,8 +933,7 @@ export default class Sheet {
     this.editor.clear();
     // after
     this.data = data;
-    verticalScrollbarSet.call(this);
-    horizontalScrollbarSet.call(this);
+    setScroll.call(this);
     this.toolbar.resetData(data);
     this.print.resetData(data);
     this.selector.resetData(data);
@@ -962,6 +952,7 @@ export default class Sheet {
     const { data } = this;
     data.setFreeze(ri, ci);
     sheetReset.call(this);
+    onScroll(this, true);
     return this;
   }
 

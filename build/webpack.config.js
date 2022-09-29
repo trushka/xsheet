@@ -19,20 +19,32 @@ module.exports = {
         },
         include: [resolve('src'), resolve('test')],
       },
+      // {
+      //   test: /\.css$/,
+      //   use: [
+      //     MiniCssExtractPlugin.loader,
+      //     'style-loader',
+      //     'css-loader',
+      //   ],
+      // },
       {
-        test: /\.css$/,
+        test: /\.scss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'style-loader',
-          'css-loader',
-        ],
-      },
-      {
-        test: /\.less$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          'less-loader',
+          //'css-loader',
+          {
+            loader: "css-loader",
+            options: {sourceMap: true},
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true,
+              // lessOptions: {
+              //   sourceMap: { outputSourceFiles: true },
+              // },
+            },
+          },
         ],
       },
       {

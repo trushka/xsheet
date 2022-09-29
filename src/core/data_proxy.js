@@ -882,7 +882,7 @@ export default class DataProxy {
     ] = helper.rangeReduceIf(fci, cols.len, 0, 0, x, i => cols.getWidth(i));
     // console.log('fci:', fci, ', ci:', ci);
     let x1 = left;
-    if (x > 0) x1 += width;
+    if (x > 0) x1 = x;//+= width;
     if (scroll.x !== x1) {
       scroll.ci = x > 0 ? ci : 0;
       scroll.x = x1;
@@ -897,8 +897,8 @@ export default class DataProxy {
       ri, top, height,
     ] = helper.rangeReduceIf(fri, rows.len, 0, 0, y, i => rows.getHeight(i));
     let y1 = top;
-    if (y > 0) y1 += height-20;
-    console.log('scrolly', 'ri:', ri, ' ,y1:', y1, y, height, ri);
+    if (y > 0) y1 = y;//+= height-20;
+    //console.log('scrolly', 'ri:', ri, ' ,y1:', y1, y, height, ri);
     if (scroll.y !== y1) {
       scroll.ri = y > 0 ? ri : 0;
       scroll.y = y1;
@@ -1061,20 +1061,21 @@ export default class DataProxy {
 
     let [x, y] = [0, 0];
     let [eri, eci] = [rows.len, cols.len];
+    const [w, h] = [this.viewWidth(), this.viewHeight()]
     for (let i = ri; i < rows.len; i += 1) {
       if (!exceptRowSet.has(i)) {
         y += rows.getHeight(i);
         eri = i;
       }
-      if (y > this.viewHeight()) break;
+      if (y > h) break;
     }
     for (let j = ci; j < cols.len; j += 1) {
       x += cols.getWidth(j);
       eci = j;
-      if (x > this.viewWidth()) break;
+      if (x > w) break;
     }
     // console.log(ri, ci, eri, eci, x, y);
-    return new CellRange(ri, ci, eri, eci, x, y);
+    return new CellRange(ri, ci, eri, eci, w, h);
   }
 
   eachMergesInView(viewRange, cb) {
@@ -1125,7 +1126,7 @@ export default class DataProxy {
         if (rowHeight > 0) {
           cb(i, y, rowHeight);
           y += rowHeight;
-          if (y > this.viewHeight()) break;
+          //if (y > this.viewHeight()) break;
         }
       }
     }
@@ -1139,7 +1140,7 @@ export default class DataProxy {
       if (colWidth > 0) {
         cb(i, x, colWidth);
         x += colWidth;
-        if (x > this.viewWidth()) break;
+        //if (x > this.viewWidth()) break;
       }
     }
   }
