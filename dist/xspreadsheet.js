@@ -7170,7 +7170,8 @@ function renderFixedLeftTopCell(fw, fh) {
     fillStyle: '#f4f5f8'
   }).fillRect(0, 0, fw, fh);
   draw.restore();
-}
+} //render grid and headers
+
 
 function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
   var _this = this;
@@ -7228,7 +7229,7 @@ function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
       renderSelectedHeaderCell.call(_this, x, 0, cw, fh);
     }
 
-    draw.fillText(i + 1, x + cw / 2, fh / 2);
+    draw.fillText(Object(_core_alphabet__WEBPACK_IMPORTED_MODULE_0__["stringAt"])(i), x + cw / 2, fh / 2);
 
     if (i > 0 && data.cols.isHide(i - 1)) {
       draw.save();

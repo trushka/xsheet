@@ -202,6 +202,7 @@ function renderFixedLeftTopCell(fw, fh) {
   draw.restore();
 }
 
+//render grid and headers
 function renderContentGrid({
   sri, sci, eri, eci, w, h,
 }, fw, fh, tx, ty, dx, dy) {
@@ -260,7 +261,7 @@ function renderContentGrid({
     if (sr.sci <= i && i <= sr.eci) {
       renderSelectedHeaderCell.call(this, x, 0, cw, fh);
     }
-    draw.fillText(i + 1, x + (cw / 2), fh / 2);
+    draw.fillText(stringAt(i), x + (cw / 2), fh / 2);
     if (i > 0 && data.cols.isHide(i - 1)) {
       draw.save();
       draw.attr({ strokeStyle: '#c6c6c6' });
