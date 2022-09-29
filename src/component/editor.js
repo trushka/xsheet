@@ -39,7 +39,6 @@ function insertText({ target }, itxt) {
   const ntxt = `${value.slice(0, selectionEnd)}${itxt}${value.slice(selectionEnd)}`;
   target.value = ntxt;
   target.setSelectionRange(selectionEnd + 1, selectionEnd + 1);
-
   this.inputText = ntxt;
   this.textlineEl.html(ntxt);
   resetTextareaSize.call(this);
@@ -81,7 +80,7 @@ function inputEventHandler(evt) {
       resetTextareaSize.call(this);
       this.change('input', v);
     } else {
-      evt.target.value = '';
+      evt.target.value = cell.text || '';
     }
   } else {
     this.inputText = v;
@@ -111,14 +110,15 @@ function setTextareaRange(position) {
     el.focus();
     el.setSelectionRange(position, position);
   }, 0);
+  // console.log('XZZxX?',el, position)
+
 }
 
 function setText(text, position) {
   const { textEl, textlineEl } = this;
   // firefox bug
   textEl.el.blur();
-  // $(textEl.el).keydown();
-// console.log('setText', textEl);
+
   textEl.val(text);
   textlineEl.html(text);
   setTextareaRange.call(this, position);
@@ -127,9 +127,9 @@ function setText(text, position) {
 function suggestItemClick(it) {
   const { inputText, validator } = this;
   let position = 0;
+
   if (validator && validator.type === 'list') {
     this.inputText = it;
-    console.log('inputText:', this.inputText);
     position = this.inputText.length;
   } else {
     const start = inputText.lastIndexOf('=');
@@ -144,6 +144,7 @@ function suggestItemClick(it) {
     position = this.inputText.length;
     this.inputText += `)${eit}`;
   }
+
   setText.call(this, this.inputText, position);
   this.clear();
 }
@@ -153,11 +154,16 @@ function resetSuggestItems() {
 }
 
 function dateFormat(d) {
-  let month = d.getMonth() + 1;
-  let date = d.getDate();
-  if (month < 10) month = `0${month}`;
-  if (date < 10) date = `0${date}`;
-  return `${d.getFullYear()}-${month}-${date}`;
+  var options = {day: 'numeric', month: 'short', year: 'numeric'};
+  const o_date = new Intl.DateTimeFormat('en-US', options);//.format(d);
+  const f_date = (m_ca, m_it) => Object({...m_ca, [m_it.type]: m_it.value});
+  const m_date = o_date.formatToParts(d).reduce(f_date, {});
+  return m_date.day + '-' + m_date.month + '-' + m_date.year;
+  // let month = d.getMonth() + 1;
+  // let date = d.getDate();
+  // if (month < 10) month = `0${month}`;
+  // if (date < 10) date = `0${date}`;
+  // return `${d.getFullYear()}-${month}-${date}`;
 }
 
 export default class Editor {
@@ -182,7 +188,6 @@ export default class Editor {
           .on('keydown', evt => keydownEventHandler.call(this, evt)),
         this.textlineEl = h('div', 'textline'),
         this.suggest.el,
-        this.suggest.scrollbar.el,
         this.datepicker.el,
       )
       .on('mousemove.stop', () => {})
@@ -252,6 +257,8 @@ export default class Editor {
   }
 
   setCell(cell, validator) {
+    if (cell && cell.editable === false) return;
+
     // console.log('::', validator);
     const { el, datepicker, suggest } = this;
     el.show();

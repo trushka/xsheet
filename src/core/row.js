@@ -2,11 +2,12 @@ import helper from './helper';
 import { expr2expr } from './alphabet';
 
 class Rows {
-  constructor({ len, height }) {
+  constructor({ len, height }, sheet) {
     this._ = {};
     this.len = len;
     // default row height
     this.height = height;
+    this.sheet = sheet;
   }
 
   getHeight(ri) {
@@ -106,7 +107,7 @@ class Rows {
 
   setCellText(ri, ci, text) {
     const cell = this.getCellOrNew(ri, ci);
-    cell.text = text;
+    if (cell.editable !== false) cell.text = text;
   }
 
   // what: all | format | text
@@ -285,6 +286,8 @@ class Rows {
   deleteCells(cellRange, what = 'all') {
     cellRange.each((i, j) => {
       this.deleteCell(i, j, what);
+      this.sheet.trigger('delete-cell', i, j);
+
     });
   }
 
@@ -293,7 +296,7 @@ class Rows {
     const row = this.get(ri);
     if (row !== null) {
       const cell = this.getCell(ri, ci);
-      if (cell !== null) {
+      if (cell !== null){// && cell.editable !== false) {
         if (what === 'all') {
           delete row.cells[ci];
         } else if (what === 'text') {

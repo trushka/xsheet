@@ -74,8 +74,8 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
   }
   draw.rect(dbox, () => {
     // render text
-    let cellText = "";
-    if(!data.settings.evalPaused) {
+    let cellText = '';
+    if (!data.settings.evalPaused) {
       cellText = _cell.render(cell.text || '', formulam, (y, x) => (data.getCellTextOrDefault(x, y)));
     } else {
       cellText = cell.text || '';
@@ -86,12 +86,15 @@ export function renderCell(draw, data, rindex, cindex, yoffset = 0) {
     }
     const font = Object.assign({}, style.font);
     font.size = getFontSizePxByPt(font.size);
-    // console.log('style:', style);
+    let sc = parseFloat(cell.text) < 0 && data.settings.negativeColor !== false ? data.settings.negativeColor : style.color;
+    if(Number.isInteger(cellText)) sc = cellText < 0 ? data.settings.negativeColor : sc;
+    else if(parseFloat(cellText.replace('$','')) < 0) sc = data.settings.negativeColor;
+
     draw.text(cellText, dbox, {
       align: style.align,
       valign: style.valign,
       font,
-      color: style.color,
+      color: sc,
       strike: style.strike,
       underline: style.underline,
     }, style.textwrap);

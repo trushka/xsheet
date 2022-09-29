@@ -1,6 +1,11 @@
 /* global window */
 import { h } from './element';
-import { bind, mouseMoveUp, bindTouch, createEventEmitter } from './event';
+import {
+  bind,
+  mouseMoveUp,
+  bindTouch,
+  createEventEmitter,
+} from './event';
 import Resizer from './resizer';
 //import Scrollbar from './scrollbar';
 import Selector from './selector';
@@ -69,7 +74,6 @@ function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = true) {
     table, selector, toolbar, data,
     contextMenu,
   } = this;
-  contextMenu.setMode((ri === -1 || ci === -1) ? 'row-col' : 'range');
   const cell = data.getCell(ri, ci);
   if (multiple) {
     selector.setEnd(ri, ci, moving);
@@ -79,6 +83,7 @@ function selectorSet(multiple, ri, ci, indexesUpdated = true, moving = true) {
     selector.set(ri, ci, indexesUpdated);
     this.trigger('cell-selected', cell, ri, ci);
   }
+  contextMenu.setMode((ri === -1 || ci === -1) ? 'row-col' : 'range');
   toolbar.reset();
   table.render();
 }
@@ -167,7 +172,6 @@ function overlayerMousemove(evt) {
   }
 }
 
-// let scrollThreshold = 15;
 function overlayerMousescroll(evt) {
   // scrollThreshold -= 1;
   // if (scrollThreshold > 0) return;
@@ -305,15 +309,17 @@ function clearClipboard() {
   selector.hideClipboard();
 }
 
-function copy() {
+function copy(evt) {
   const { data, selector } = this;
+  if (data.settings.mode === 'read') return;
   data.copy();
-  data.copyToSystemClipboard();
+  data.copyToSystemClipboard(evt);
   selector.showClipboard();
 }
 
 function cut() {
   const { data, selector } = this;
+  if (data.settings.mode === 'read') return;
   data.cut();
   selector.showClipboard();
 }
@@ -321,7 +327,15 @@ function cut() {
 function paste(what, evt) {
   const { data } = this;
   if (data.settings.mode === 'read') return;
-  if (data.paste(what, msg => xtoast('Tip', msg))) {
+  if (data.clipboard.isClear()) {
+    const resetSheet = () => sheetReset.call(this);
+    const eventTrigger = (rows) => {
+      this.trigger('pasted-clipboard', rows);
+    };
+    // pastFromSystemClipboard is async operation, need to tell it how to reset sheet and trigger event after it finishes
+    // pasting content from system clipboard
+    data.pasteFromSystemClipboard(resetSheet, eventTrigger);
+  } else if (data.paste(what, msg => xtoast('Tip', msg))) {
     sheetReset.call(this);
   } else if (evt) {
     const cdata = evt.clipboardData.getData('text/plain');
@@ -479,13 +493,16 @@ function dataSetCellText(text, state = 'finished') {
   if (state === 'finished') {
     table.render();
   } else {
-    this.trigger('cell-edited', text, ri, ci);
   }
+  this.trigger('cell-edited', text, ri, ci);
 }
 
 function insertDeleteRowColumn(type) {
   const { data } = this;
   if (data.settings.mode === 'read') return;
+  const { ri, ci } = data.selector;
+  this.trigger(type, ri, ci);
+console.log('Event Triggered:', type, ri, ci)
   if (type === 'insert-row') {
     data.insert('row');
   } else if (type === 'delete-row') {
@@ -593,7 +610,12 @@ function sheetInitEvents() {
         }
         evt.stopPropagation();
       } else if (evt.detail === 2) {
-        editorSet.call(this);
+        var cell = this.data.getSelectedCell(selector.range.sri, selector.range.eci);
+        this.trigger('cell-dblclicked', cell);
+        if(cell && cell.editable && cell.editable === false)
+          console.log('Editing Disabled');
+        else
+          editorSet.call(this);
       } else {
         overlayerMousedown.call(this, evt);
       }
@@ -604,12 +626,8 @@ function sheetInitEvents() {
       if (offsetX <= 0) rowResizer.hide();
     })
     .on('scroll', (e) => {
-      //if (e.target != overlayerEl) return;
       onScroll(this)
     });
-    // .on('mousewheel.stop', (evt) => {
-    //   overlayerMousescroll.call(this, evt);
-    // })
 
   selector.inputChange = (v) => {
     dataSetCellText.call(this, v, 'input');
@@ -695,8 +713,14 @@ function sheetInitEvents() {
   });
 
   bind(window, 'paste', (evt) => {
-    if(!this.focusing) return;
+    if (!this.focusing) return;
     paste.call(this, 'all', evt);
+    evt.preventDefault();
+  });
+
+  bind(window, 'copy', (evt) => {
+    if (!this.focusing) return;
+    copy.call(this, evt);
     evt.preventDefault();
   });
 
@@ -948,7 +972,6 @@ export default class Sheet {
 
   // freeze rows or cols
   freeze(ri, ci) {
-    console.log("freeze", ri);
     const { data } = this;
     data.setFreeze(ri, ci);
     sheetReset.call(this);
