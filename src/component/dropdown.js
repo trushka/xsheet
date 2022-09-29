@@ -18,7 +18,6 @@ export default class Dropdown extends Element {
       .hide();
 
     this.setContentChildren(...children);
-
     this.headerEl = h('div', `${cssPrefix}-dropdown-header`);
     this.headerEl.on('click', () => {
       if (this.contentEl.css('display') !== 'block') {

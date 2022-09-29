@@ -172,7 +172,6 @@ function overlayerMousemove(evt) {
   }
 }
 
-// let scrollThreshold = 15;
 function overlayerMousescroll(evt) {
   // scrollThreshold -= 1;
   // if (scrollThreshold > 0) return;
@@ -494,13 +493,16 @@ function dataSetCellText(text, state = 'finished') {
   if (state === 'finished') {
     table.render();
   } else {
-    this.trigger('cell-edited', text, ri, ci);
   }
+  this.trigger('cell-edited', text, ri, ci);
 }
 
 function insertDeleteRowColumn(type) {
   const { data } = this;
   if (data.settings.mode === 'read') return;
+  const { ri, ci } = data.selector;
+  this.trigger(type, ri, ci);
+console.log('Event Triggered:', type, ri, ci)
   if (type === 'insert-row') {
     data.insert('row');
   } else if (type === 'delete-row') {

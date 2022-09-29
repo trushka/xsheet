@@ -12,6 +12,7 @@
   <div id="x-spreadsheet-demo">
   </div>
   <script>
+    var xs ;
     function load(){
       const rows10 = { len: 1000 };
       for (let i = 0; i < 1000; i += 1) {
@@ -38,7 +39,17 @@
           cells: {
             0: { text: 'render', style: 0 },
             1: { text: 'no-edit', editable: false },
-            2: { text: 'haha', changed: 12},
+            2: { text: 'changed', changed: 12},
+            2: { text: 'haha', tip: 'abc'},
+          }
+        },
+        4: {
+          cells: {
+            1: { text: '200.99', style: 1 },
+            2: { text: '300.05', style: 1 },
+            3: { text: '-400.22', style: 1 },
+            4: { text: '', style: 1 },
+            5: { text: '=SUM(B5:E5)', style: 1 },
           }
         },
         8: {
@@ -48,7 +59,14 @@
         }
       };
       // x_spreadsheet.locale('zh-cn');
-      var xs = x_spreadsheet('#x-spreadsheet-demo', {showToolbar: true, showGrid: true})
+      xs = x_spreadsheet('#x-spreadsheet-demo',
+              {
+                showToolbar: true,
+                showGrid: true,
+                saveHistory: false,
+                // negativeColor: '#F3101BFF',
+
+              })
         .loadData([{
           freeze: 'B2',
           styles: [
@@ -63,12 +81,25 @@
                 left: ['thin', '#0366d6'],
               },
             },
+            {
+              format: 'usd',
+            }
           ],
           cols: {
             len: 10,
             width: 300,
             2: { width: 200 },
           },
+          validations: [{
+            "refs": [
+              "B5"
+            ],
+            "mode": "cell",
+            "type": "list",
+            "required": false,
+            "operator": "be",
+            "value": "a,b,c"
+          }],
           rows,
         }, { name: 'sheet-test', rows: rows10 }]).change((cdata) => {
           // console.log(cdata);
@@ -79,6 +110,12 @@
           console.log('cell:', cell, ', ri:', ri, ', ci:', ci);
         }).on('cell-edited', (text, ri, ci) => {
           console.log('text:', text, ', ri: ', ri, ', ci:', ci);
+        }).on('delete-cell', (ri, ci) => {
+          console.log('cell text deleted:', ', ri: ', ri, ', ci:', ci);
+        }).on('deleted-cell', (ri, ci) => {
+          console.log('cell deleted:', ', ri: ', ri, ', ci:', ci);
+        }).on('deleted-cell-format', (ri, ci) => {
+          console.log('cell format deleted:', ', ri: ', ri, ', ci:', ci);
         });
 
       setTimeout(() => {
