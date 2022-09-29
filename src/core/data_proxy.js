@@ -78,6 +78,8 @@ const defaultSettings = {
   showToolbar: true,
   showContextmenu: true,
   showBottomBar: true,
+  saveHistory: true,
+  negativeColor: '#000000',
   row: {
     len: 100,
     height: 25,
@@ -324,14 +326,14 @@ function getCellColByX(x, scrollOffsetx) {
 }
 
 export default class DataProxy {
-  constructor(name, settings) {
+  constructor(name, settings, sheet) {
     this.settings = helper.merge(defaultSettings, settings || {});
     // save data begin
     this.name = name || 'sheet';
     this.freeze = [0, 0];
     this.styles = []; // Array<Style>
     this.merges = new Merges(); // [CellRange, ...]
-    this.rows = new Rows(this.settings.row);
+    this.rows = new Rows(this.settings.row, sheet);
     this.cols = new Cols(this.settings.col);
     this.validations = new Validations();
     this.hyperlinks = {};
@@ -341,7 +343,7 @@ export default class DataProxy {
     // don't save object
     this.selector = new Selector();
     this.scroll = new Scroll();
-    this.history = new History();
+    this.history = new History(this.settings.saveHistory);
     this.clipboard = new Clipboard();
     this.autoFilter = new AutoFilter();
     this.change = () => {};

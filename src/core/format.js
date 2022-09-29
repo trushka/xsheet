@@ -51,7 +51,7 @@ const baseFormats = [
     title: tf('format.usd'),
     type: 'number',
     label: '$10.00',
-    render: v => `$${formatNumberRender(v)}`,
+    render: v => v < 0 ? `-$${formatNumberRender(v*-1)}` :`$${formatNumberRender(v)}`,
   },
   {
     key: 'eur',

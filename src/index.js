@@ -11,7 +11,10 @@ import './index.less';
 class Spreadsheet {
   constructor(selectors, options = {}) {
     let targetEl = selectors;
-    this.options = { showBottomBar: true, ...options };
+    this.options = {
+      showBottomBar: true,
+      ...options
+    };
     this.sheetIndex = 1;
     this.datas = [];
     if (typeof selectors === 'string') {
@@ -43,7 +46,7 @@ class Spreadsheet {
 
   addSheet(name, active = true) {
     const n = name || `sheet${this.sheetIndex}`;
-    const d = new DataProxy(n, this.options);
+    const d = new DataProxy(n, this.options, this.sheet);
     d.change = (...args) => {
       this.sheet.trigger('change', ...args);
     };

@@ -115,9 +115,16 @@ function convertStringToNumber(a) {
   let obj = {};
   const regexValue =  /(\$*)\s*(\d*(\.|,)*\d*)\s*(hrs*|hr*|%*)/m;
   let allMatches = a.match(regexValue);
+  if(allMatches[0] === '')
+  {
+    obj.number = Number.isNaN(parseFloat(a)) ? 0 : parseFloat(a)
+
+  }else {
+
+    obj.number = allMatches[2].replace(",", "");
+  }
   obj.prefix = allMatches[1];
   obj.sufix = allMatches[4];
-  obj.number = allMatches[2].replace(",", "");
   return obj;
 }
 

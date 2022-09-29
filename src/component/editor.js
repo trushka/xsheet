@@ -39,7 +39,6 @@ function insertText({ target }, itxt) {
   const ntxt = `${value.slice(0, selectionEnd)}${itxt}${value.slice(selectionEnd)}`;
   target.value = ntxt;
   target.setSelectionRange(selectionEnd + 1, selectionEnd + 1);
-
   this.inputText = ntxt;
   this.textlineEl.html(ntxt);
   resetTextareaSize.call(this);
@@ -111,6 +110,8 @@ function setTextareaRange(position) {
     el.focus();
     el.setSelectionRange(position, position);
   }, 0);
+  // console.log('XZZxX?',el, position)
+
 }
 
 function setText(text, position) {
@@ -126,6 +127,7 @@ function setText(text, position) {
 function suggestItemClick(it) {
   const { inputText, validator } = this;
   let position = 0;
+
   if (validator && validator.type === 'list') {
     this.inputText = it;
     position = this.inputText.length;
@@ -142,6 +144,7 @@ function suggestItemClick(it) {
     position = this.inputText.length;
     this.inputText += `)${eit}`;
   }
+
   setText.call(this, this.inputText, position);
   this.clear();
 }
@@ -151,11 +154,16 @@ function resetSuggestItems() {
 }
 
 function dateFormat(d) {
-  let month = d.getMonth() + 1;
-  let date = d.getDate();
-  if (month < 10) month = `0${month}`;
-  if (date < 10) date = `0${date}`;
-  return `${d.getFullYear()}-${month}-${date}`;
+  var options = {day: 'numeric', month: 'short', year: 'numeric'};
+  const o_date = new Intl.DateTimeFormat('en-US', options);//.format(d);
+  const f_date = (m_ca, m_it) => Object({...m_ca, [m_it.type]: m_it.value});
+  const m_date = o_date.formatToParts(d).reduce(f_date, {});
+  return m_date.day + '-' + m_date.month + '-' + m_date.year;
+  // let month = d.getMonth() + 1;
+  // let date = d.getDate();
+  // if (month < 10) month = `0${month}`;
+  // if (date < 10) date = `0${date}`;
+  // return `${d.getFullYear()}-${month}-${date}`;
 }
 
 export default class Editor {
