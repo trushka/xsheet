@@ -254,10 +254,13 @@ function setScroll() {
   const { data, overlayerEl } = this;
   //const erth = data.exceptRowTotalHeight(0, -1);
   const
-    w = data.cols.totalWidth() + data.cols.indexWidth,
-    h = data.rows.totalHeight() + data.rows.height;
+    width = data.cols.totalWidth(),
+    height = data.rows.totalHeight(),
+    w = width + data.cols.indexWidth,
+    h = height + data.rows.height;
   //console.log('erth:', erth);
   overlayerEl.css({'--w': w, '--h': h}, 'px')
+  data.contSize = {width, height}
 }
 
 function sheetFreeze() {
@@ -440,6 +443,7 @@ function onScroll(sheet, update) {
   data.scrolly(overlayerEl.el.scrollTop, () => update=1)
   if (update) {
     selector.resetBRLAreaOffset();
+    selector.resetBRTAreaOffset();
     editorSetOffset.call(sheet);
     table.render();
   };
