@@ -131,11 +131,12 @@ function renderAutofilter(viewRange) {
 
 function renderContent(viewRange, fw, fh, tx, ty, dx, dy) {
   const { draw, data } = this,
-    {w, h} = viewRange;
+    {w, h} = viewRange,
+    thin=thinLineWidth()*.5;
   draw.save();
   draw
     .translate(fw, fh)
-    .clipRect(tx, ty, w, h)
+    .clipRect(tx+thin, ty+thin, w, h)
     .translate(dx, dy);
 
   const { exceptRowSet } = data;
@@ -210,11 +211,10 @@ function renderContentGrid({
   sri, sci, eri, eci, w, h,
 }, fw, fh, tx, ty, dx, dy) {
   const { draw, data } = this,
-    { settings, contSize } = data,
+    { settings, contSize, freeze } = data,
     {width, height} = contSize,
-    sr = data.selector.range,
-    nty = ty + fh,
-    ntx = tx + fw;
+    cliped=[0, 0],
+    sr = data.selector.range;
 
   draw.save();
   // draw rect background
@@ -230,12 +230,12 @@ function renderContentGrid({
 
   data.rowEach(0, eri, (i, y, ch) => {
 
-    if (i == data.freeze[0]) draw
+    if (i >= freeze[0] && !cliped[0]++) draw
      .line([0, y], [w, y])
      .clipRect(0, y, w, h);
 
     if (i >= sri) y += dy;
-    else if (i >= data.freeze[0]) return;
+    else if (i >= freeze[0]) return;
 
     if (sr.sri <= i && i <= sr.eri) {
       renderSelectedHeaderCell.call(this, 0, y, fw, ch);
@@ -254,7 +254,7 @@ function renderContentGrid({
   draw.restore().translate(fw, 0);
 
   data.colEach(0, eci, (i, x, cw) => {
-    if (i == data.freeze[1]) draw
+    if (i >= data.freeze[1] && !cliped[1]++) draw
      .line([x, 0], [x, h])
      .clipRect(x, 0, w, h);
 

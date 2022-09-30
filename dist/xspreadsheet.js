@@ -131,11 +131,11 @@ function thinLineWidth() {
 }
 
 function npx(px) {
-  return Math.ceil(px * dpr()); //parseInt(, 10);
+  return Math.round(px * dpr()); //parseInt(, 10);
 }
 
 function npxLine(px) {
-  return npx(px) - .5; //return n > 0 ? n - 0.5 : 0.5;
+  return Math.floor(px * dpr()) + .5; //return n > 0 ? n - 0.5 : 0.5;
 }
 
 var DrawBox =
@@ -651,7 +651,7 @@ function () {
         args[_key] = arguments[_key];
       }
 
-      ctx.rect.apply(ctx, _toConsumableArray(args.map(npx)));
+      ctx.rect.apply(ctx, _toConsumableArray(args.map(npxLine)));
       ctx.clip();
       return this;
     }
@@ -784,8 +784,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _icon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./icon */ "./src/component/icon.js");
 /* harmony import */ var _form_input__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./form_input */ "./src/component/form_input.js");
 /* harmony import */ var _dropdown__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./dropdown */ "./src/component/dropdown.js");
-/* harmony import */ var _message__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./message */ "./src/component/message.js");
-/* harmony import */ var _locale_locale__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../locale/locale */ "./src/locale/locale.js");
+/* harmony import */ var _locale_locale__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../locale/locale */ "./src/locale/locale.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -825,7 +824,8 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-
+ // Record: temp not used
+// import { xtoast } from './message';
 
 
 
@@ -869,7 +869,7 @@ function (_Dropdown) {
 
 var menuItems = [{
   key: 'delete',
-  title: Object(_locale_locale__WEBPACK_IMPORTED_MODULE_7__["tf"])('contextmenu.deleteSheet')
+  title: Object(_locale_locale__WEBPACK_IMPORTED_MODULE_6__["tf"])('contextmenu.deleteSheet')
 }];
 
 function buildMenuItem(item) {
@@ -954,7 +954,7 @@ function () {
 
   _createClass(Bottombar, [{
     key: "addItem",
-    value: function addItem(name, active) {
+    value: function addItem(name, active, options) {
       var _this6 = this;
 
       this.dataNames.push(name);
@@ -962,6 +962,7 @@ function () {
       item.on('click', function () {
         _this6.clickSwap2(item);
       }).on('contextmenu', function (evt) {
+        if (options.mode === 'read') return;
         var _evt$target = evt.target,
             offsetLeft = _evt$target.offsetLeft,
             offsetHeight = _evt$target.offsetHeight;
@@ -973,6 +974,7 @@ function () {
 
         _this6.deleteEl = item;
       }).on('dblclick', function () {
+        if (options.mode === 'read') return;
         var v = item.html();
         var input = new _form_input__WEBPACK_IMPORTED_MODULE_4__["default"]('auto', '');
         input.val(v);
@@ -2397,6 +2399,12 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { keys.push.apply(keys, Object.getOwnPropertySymbols(object)); } if (enumerableOnly) keys = keys.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -2505,7 +2513,7 @@ function inputEventHandler(evt) {
       resetTextareaSize.call(this);
       this.change('input', v);
     } else {
-      evt.target.value = '';
+      evt.target.value = cell.text || '';
     }
   } else {
     this.inputText = v;
@@ -2537,16 +2545,14 @@ function setTextareaRange(position) {
   setTimeout(function () {
     el.focus();
     el.setSelectionRange(position, position);
-  }, 0);
+  }, 0); // console.log('XZZxX?',el, position)
 }
 
 function _setText(text, position) {
   var textEl = this.textEl,
       textlineEl = this.textlineEl; // firefox bug
 
-  textEl.el.blur(); // $(textEl.el).keydown();
-  // console.log('setText', textEl);
-
+  textEl.el.blur();
   textEl.val(text);
   textlineEl.html(text);
   setTextareaRange.call(this, position);
@@ -2559,7 +2565,6 @@ function suggestItemClick(it) {
 
   if (validator && validator.type === 'list') {
     this.inputText = it;
-    console.log('inputText:', this.inputText);
     position = this.inputText.length;
   } else {
     var start = inputText.lastIndexOf('=');
@@ -2587,11 +2592,23 @@ function resetSuggestItems() {
 }
 
 function dateFormat(d) {
-  var month = d.getMonth() + 1;
-  var date = d.getDate();
-  if (month < 10) month = "0".concat(month);
-  if (date < 10) date = "0".concat(date);
-  return "".concat(d.getFullYear(), "-").concat(month, "-").concat(date);
+  var options = {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  };
+  var o_date = new Intl.DateTimeFormat('en-US', options); //.format(d);
+
+  var f_date = function f_date(m_ca, m_it) {
+    return Object(_objectSpread({}, m_ca, _defineProperty({}, m_it.type, m_it.value)));
+  };
+
+  var m_date = o_date.formatToParts(d).reduce(f_date, {});
+  return m_date.day + '-' + m_date.month + '-' + m_date.year; // let month = d.getMonth() + 1;
+  // let date = d.getDate();
+  // if (month < 10) month = `0${month}`;
+  // if (date < 10) date = `0${date}`;
+  // return `${d.getFullYear()}-${month}-${date}`;
 }
 
 var Editor =
@@ -2619,7 +2636,7 @@ function () {
       return inputEventHandler.call(_this, evt);
     }).on('paste.stop', function () {}).on('keydown', function (evt) {
       return keydownEventHandler.call(_this, evt);
-    }), this.textlineEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', 'textline'), this.suggest.el, this.suggest.scrollbar.el, this.datepicker.el).on('mousemove.stop', function () {}).on('mousedown.stop', function () {});
+    }), this.textlineEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', 'textline'), this.suggest.el, this.datepicker.el).on('mousemove.stop', function () {}).on('mousedown.stop', function () {});
     this.el = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_3__["cssPrefix"], "-editor")).child(this.areaEl).hide();
     this.suggest.bindInputEvents(this.textEl);
     this.areaOffset = null;
@@ -2711,7 +2728,8 @@ function () {
   }, {
     key: "setCell",
     value: function setCell(cell, validator) {
-      // console.log('::', validator);
+      if (cell && cell.editable === false) return; // console.log('::', validator);
+
       var el = this.el,
           datepicker = this.datepicker,
           suggest = this.suggest;
@@ -3283,19 +3301,20 @@ function createEventEmitter() {
   var listeners = new Map();
 
   function on(eventName, callback) {
-    if (listeners.has(eventName)) {
+    var push = function push() {
       var currentListener = listeners.get(eventName);
+      return Array.isArray(currentListener) && currentListener.push(callback) || false;
+    };
 
-      if (Array.isArray(currentListener)) {
-        currentListener.push(callback);
-      }
-    } else {
-      listeners.set(eventName, [].concat(callback));
-    }
+    var create = function create() {
+      return listeners.set(eventName, [].concat(callback));
+    };
+
+    return listeners.has(eventName) && push() || create();
   }
 
   function fire(eventName, args) {
-    if (listeners.has(eventName)) {
+    var exec = function exec() {
       var currentListener = listeners.get(eventName);
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -3320,18 +3339,19 @@ function createEventEmitter() {
           }
         }
       }
-    }
+    };
+
+    return listeners.has(eventName) && exec();
   }
 
   function removeListener(eventName, callback) {
-    if (listeners.has(eventName)) {
+    var remove = function remove() {
       var currentListener = listeners.get(eventName);
       var idx = currentListener.indexOf(callback);
+      return idx >= 0 && currentListener.splice(idx, 1) && listeners.get(eventName).length === 0 && listeners["delete"](eventName);
+    };
 
-      if (idx && idx >= 0) {
-        currentListener.splice(idx, 1);
-      }
-    }
+    return listeners.has(eventName) && remove();
   }
 
   function once(eventName, callback) {
@@ -3344,19 +3364,18 @@ function createEventEmitter() {
       removeListener(eventName, execCalllback);
     };
 
-    on(eventName, execCalllback);
+    return on(eventName, execCalllback);
   }
 
   function removeAllListeners() {
     listeners.clear();
   }
 
-  function getAllListeners() {
-    return listeners;
-  }
-
   return {
-    getAllListeners: getAllListeners,
+    get current() {
+      return listeners;
+    },
+
     on: on,
     once: once,
     fire: fire,
@@ -3604,8 +3623,8 @@ function () {
 
       _this.vchange(it.key);
     }, width, this.el);
-    this.el.children(this.itemEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', 'input-text').html(this.getTitle(key)), this.suggest.el, this.suggest.scrollbar.el).on('click', function () {
-      return _this.show();
+    this.el.children(this.itemEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', 'input-text').html(this.getTitle(key)), this.suggest.el).on('click', function () {
+      this.show();
     });
   }
 
@@ -4584,14 +4603,12 @@ function () {
           cRect = this.cRect,
           vertical = this.vertical,
           minDistance = this.minDistance;
-      var distance = vertical ? cRect.width : cRect.height; //console.log('distance:', distance);
-
+      var distance = vertical ? cRect.width : cRect.height;
       lineEl.show();
       Object(_event__WEBPACK_IMPORTED_MODULE_1__["mouseMoveUp"])(window, function (e) {
         _this2.moving = true;
 
         if (startEvt !== null && e.buttons === 1) {
-          //console.log('top:', top, ', left:', top, ', cRect:', cRect);
           if (vertical) {
             distance += e.movementX;
 
@@ -4631,85 +4648,6 @@ function () {
 
 /***/ }),
 
-/***/ "./src/component/scrollbar.js":
-/*!************************************!*\
-  !*** ./src/component/scrollbar.js ***!
-  \************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Scrollbar; });
-/* harmony import */ var _element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./element */ "./src/component/element.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config */ "./src/config.js");
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-
-
-
-var Scrollbar =
-/*#__PURE__*/
-function () {
-  function Scrollbar(vertical) {
-    var _this = this;
-
-    _classCallCheck(this, Scrollbar);
-
-    this.vertical = vertical;
-    this.moveFn = null;
-    this.el = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_1__["cssPrefix"], "-scrollbar ").concat(vertical ? 'vertical' : 'horizontal')).child(this.contentEl = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', '')).on('mousemove.stop', function () {}).on('scroll.stop', function (evt) {
-      var _evt$target = evt.target,
-          scrollTop = _evt$target.scrollTop,
-          scrollLeft = _evt$target.scrollLeft; // console.log('scrollTop:', scrollTop);
-
-      if (_this.moveFn) {
-        _this.moveFn(_this.vertical ? scrollTop : scrollLeft, evt);
-      } // console.log('evt:::', evt);
-
-    });
-  }
-
-  _createClass(Scrollbar, [{
-    key: "move",
-    value: function move(v) {
-      this.el.scroll(v);
-      return this;
-    }
-  }, {
-    key: "scroll",
-    value: function scroll() {
-      return this.el.scroll();
-    }
-  }, {
-    key: "set",
-    value: function set(distance, contentDistance) {
-      var d = distance - 1; // console.log('distance:', distance, ', contentDistance:', contentDistance);
-
-      if (contentDistance > d) {
-        var cssKey = this.vertical ? 'height' : 'width'; // console.log('d:', d);
-
-        this.el.css(cssKey, "".concat(d - 15, "px")).show();
-        this.contentEl.css(this.vertical ? 'width' : 'height', '1px').css(cssKey, "".concat(contentDistance, "px"));
-      } else {
-        this.el.hide();
-      }
-
-      return this;
-    }
-  }]);
-
-  return Scrollbar;
-}();
-
-
-
-/***/ }),
-
 /***/ "./src/component/selector.js":
 /*!***********************************!*\
   !*** ./src/component/selector.js ***!
@@ -4742,10 +4680,12 @@ function () {
     var _this = this;
 
     var useHideInput = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    var autoFocus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
     _classCallCheck(this, SelectorElement);
 
     this.useHideInput = useHideInput;
+    this.autoFocus = autoFocus;
 
     this.inputChange = function () {};
 
@@ -4795,7 +4735,12 @@ function () {
 
       if (this.useHideInput) {
         this.hideInputDiv.offset(of);
-        this.hideInput.val('').focus();
+
+        if (this.autoFocus) {
+          this.hideInput.val('').focus();
+        } else {
+          this.hideInput.val('');
+        }
       }
     }
   }, {
@@ -4914,8 +4859,17 @@ function setBRAreaOffset(offset) {
 }
 
 function setTLAreaOffset(offset) {
+  var left = offset.l,
+      top = offset.t,
+      width = offset.width,
+      height = offset.height;
   var tl = this.tl;
-  tl.setAreaOffset(offset);
+  tl.setAreaOffset({
+    left: left,
+    top: top,
+    width: width,
+    height: height
+  });
 }
 
 function setTAreaOffset(offset) {
@@ -4970,10 +4924,12 @@ function () {
 
     _classCallCheck(this, Selector);
 
+    var autoFocus = data.settings.autoFocus;
+
     this.inputChange = function () {};
 
     this.data = data;
-    this.br = new SelectorElement(true);
+    this.br = new SelectorElement(true, autoFocus);
     this.t = new SelectorElement();
     this.l = new SelectorElement();
     this.tl = new SelectorElement();
@@ -5372,7 +5328,6 @@ function selectorSet(multiple, ri, ci) {
       toolbar = this.toolbar,
       data = this.data,
       contextMenu = this.contextMenu;
-  contextMenu.setMode(ri === -1 || ci === -1 ? 'row-col' : 'range');
   var cell = data.getCell(ri, ci);
 
   if (multiple) {
@@ -5384,6 +5339,7 @@ function selectorSet(multiple, ri, ci) {
     this.trigger('cell-selected', cell, ri, ci);
   }
 
+  contextMenu.setMode(ri === -1 || ci === -1 ? 'row-col' : 'range');
   toolbar.reset();
   table.render();
 } // multiple: boolean
@@ -5492,8 +5448,7 @@ function overlayerMousemove(evt) {
   } else {
     colResizer.hide();
   }
-} // let scrollThreshold = 15;
-
+}
 
 function overlayerMousescroll(evt) {
   // scrollThreshold -= 1;
@@ -5621,7 +5576,8 @@ function overlayerTouch(direction, distance) {
 
 function setScroll() {
   var data = this.data,
-      overlayerEl = this.overlayerEl; //const erth = data.exceptRowTotalHeight(0, -1);
+      overlayerEl = this.overlayerEl,
+      el = this.overlayerEl.el; //const erth = data.exceptRowTotalHeight(0, -1);
 
   var width = data.cols.totalWidth(),
       height = data.rows.totalHeight(),
@@ -5631,6 +5587,10 @@ function setScroll() {
   overlayerEl.css({
     '--w': w,
     '--h': h
+  }, 'px');
+  this.overlayerCEl.css({
+    right: el.offsetWidth - el.clientWidth,
+    bottom: el.offsetHeight - el.clientHeight
   }, 'px');
   data.contSize = {
     width: width,
@@ -5664,11 +5624,18 @@ function sheetReset() {
       toolbar = this.toolbar,
       selector = this.selector,
       el = this.el;
-  var tOffset = this.getTableOffset();
+
+  var _this$getTableOffset = this.getTableOffset(),
+      left = _this$getTableOffset.left,
+      top = _this$getTableOffset.top;
+
   var vRect = this.getRect();
   tableEl.attr(vRect);
   overlayerEl.offset(vRect);
-  overlayerCEl.offset(tOffset);
+  overlayerCEl.css({
+    left: left,
+    top: top
+  }, 'px');
   el.css('width', "".concat(vRect.width, "px"));
   setScroll.call(this);
   sheetFreeze.call(this);
@@ -5684,26 +5651,42 @@ function clearClipboard() {
   selector.hideClipboard();
 }
 
-function copy() {
+function copy(evt) {
   var data = this.data,
       selector = this.selector;
+  if (data.settings.mode === 'read') return;
   data.copy();
-  data.copyToSystemClipboard();
+  data.copyToSystemClipboard(evt);
   selector.showClipboard();
 }
 
 function cut() {
   var data = this.data,
       selector = this.selector;
+  if (data.settings.mode === 'read') return;
   data.cut();
   selector.showClipboard();
 }
 
 function paste(what, evt) {
+  var _this2 = this;
+
   var data = this.data;
   if (data.settings.mode === 'read') return;
 
-  if (data.paste(what, function (msg) {
+  if (data.clipboard.isClear()) {
+    var resetSheet = function resetSheet() {
+      return sheetReset.call(_this2);
+    };
+
+    var eventTrigger = function eventTrigger(rows) {
+      _this2.trigger('pasted-clipboard', rows);
+    }; // pastFromSystemClipboard is async operation, need to tell it how to reset sheet and trigger event after it finishes
+    // pasting content from system clipboard
+
+
+    data.pasteFromSystemClipboard(resetSheet, eventTrigger);
+  } else if (data.paste(what, function (msg) {
     return Object(_message__WEBPACK_IMPORTED_MODULE_12__["xtoast"])('Tip', msg);
   })) {
     sheetReset.call(this);
@@ -5741,7 +5724,7 @@ function toolbarChangePaintformatPaste() {
 }
 
 function overlayerMousedown(evt) {
-  var _this2 = this;
+  var _this3 = this;
 
   // console.log(':::::overlayer.mousedown:', evt.detail, evt.button, evt.buttons, evt.shiftKey);
   // console.log('evt.target.className:', evt.target.className);
@@ -5797,7 +5780,7 @@ function overlayerMousedown(evt) {
       if (isAutofillEl) {
         selector.showAutofill(ri, ci);
       } else if (e.buttons === 1 && !e.shiftKey) {
-        selectorSet.call(_this2, true, ri, ci, true, true);
+        selectorSet.call(_this3, true, ri, ci, true, true);
       }
     }, function () {
       if (isAutofillEl && selector.arange && data.settings.mode !== 'read') {
@@ -5809,7 +5792,7 @@ function overlayerMousedown(evt) {
       }
 
       selector.hideAutofill();
-      toolbarChangePaintformatPaste.call(_this2);
+      toolbarChangePaintformatPaste.call(_this3);
     });
   }
 
@@ -5904,14 +5887,19 @@ function dataSetCellText(text) {
 
   if (state === 'finished') {
     table.render();
-  } else {
-    this.trigger('cell-edited', text, ri, ci);
-  }
+  } else {}
+
+  this.trigger('cell-edited', text, ri, ci);
 }
 
 function insertDeleteRowColumn(type) {
   var data = this.data;
   if (data.settings.mode === 'read') return;
+  var _data$selector2 = data.selector,
+      ri = _data$selector2.ri,
+      ci = _data$selector2.ci;
+  this.trigger(type, ri, ci);
+  console.log('Event Triggered:', type, ri, ci);
 
   if (type === 'insert-row') {
     data.insert('row');
@@ -5961,9 +5949,9 @@ function toolbarChange(type, value) {
     autofilter.call(this);
   } else if (type === 'freeze') {
     if (value) {
-      var _data$selector2 = data.selector,
-          ri = _data$selector2.ri,
-          ci = _data$selector2.ci;
+      var _data$selector3 = data.selector,
+          ri = _data$selector3.ri,
+          ci = _data$selector3.ci;
       this.freeze(ri, ci);
     } else {
       this.freeze(0, 0);
@@ -5988,7 +5976,7 @@ function sortFilterChange(ci, order, operator, value) {
 }
 
 function sheetInitEvents() {
-  var _this3 = this;
+  var _this4 = this;
 
   var selector = this.selector,
       overlayerEl = this.overlayerEl,
@@ -6004,7 +5992,7 @@ function sheetInitEvents() {
       modalJumpTo = this.modalJumpTo; // overlayer
 
   overlayerEl.on('mousemove', function (evt) {
-    overlayerMousemove.call(_this3, evt);
+    overlayerMousemove.call(_this4, evt);
   }).on('mousedown', function (evt) {
     var offsetX = evt.offsetX,
         offsetY = evt.offsetY;
@@ -6014,18 +6002,22 @@ function sheetInitEvents() {
     // the right mouse button: mousedown → contenxtmenu → mouseup
 
     if (evt.buttons === 2) {
-      if (_this3.data.xyInSelectedRect(offsetX, offsetY)) {
+      if (_this4.data.xyInSelectedRect(offsetX, offsetY)) {
         contextMenu.setPosition(offsetX, offsetY);
       } else {
-        overlayerMousedown.call(_this3, evt);
+        overlayerMousedown.call(_this4, evt);
         contextMenu.setPosition(offsetX, offsetY);
       }
 
       evt.stopPropagation();
     } else if (evt.detail === 2) {
-      editorSet.call(_this3);
+      var cell = _this4.data.getSelectedCell(selector.range.sri, selector.range.eci);
+
+      _this4.trigger('cell-dblclicked', cell);
+
+      if (cell && cell.editable && cell.editable === false) console.log('Editing Disabled');else editorSet.call(_this4);
     } else {
-      overlayerMousedown.call(_this3, evt);
+      overlayerMousedown.call(_this4, evt);
     }
   }).on('mouseout', function (evt) {
     var offsetX = evt.offsetX,
@@ -6033,15 +6025,12 @@ function sheetInitEvents() {
     if (offsetY <= 0) colResizer.hide();
     if (offsetX <= 0) rowResizer.hide();
   }).on('scroll', function (e) {
-    //if (e.target != overlayerEl) return;
-    onScroll(_this3);
-  }); // .on('mousewheel.stop', (evt) => {
-  //   overlayerMousescroll.call(this, evt);
-  // })
+    onScroll(_this4);
+  });
 
   selector.inputChange = function (v) {
-    dataSetCellText.call(_this3, v, 'input');
-    editorSet.call(_this3);
+    dataSetCellText.call(_this4, v, 'input');
+    editorSet.call(_this4);
   }; // slide on mobile
   // bindTouch(overlayerEl.el, {
   //   move: (direction, d) => {
@@ -6052,49 +6041,49 @@ function sheetInitEvents() {
 
 
   toolbar.change = function (type, value) {
-    return toolbarChange.call(_this3, type, value);
+    return toolbarChange.call(_this4, type, value);
   }; // sort filter ok
 
 
   sortFilter.ok = function (ci, order, o, v) {
-    return sortFilterChange.call(_this3, ci, order, o, v);
+    return sortFilterChange.call(_this4, ci, order, o, v);
   }; // resizer finished callback
 
 
   rowResizer.finishedFn = function (cRect, distance) {
-    rowResizerFinished.call(_this3, cRect, distance);
+    rowResizerFinished.call(_this4, cRect, distance);
   };
 
   colResizer.finishedFn = function (cRect, distance) {
-    colResizerFinished.call(_this3, cRect, distance);
+    colResizerFinished.call(_this4, cRect, distance);
   }; // resizer unhide callback
 
 
   rowResizer.unhideFn = function (index) {
-    unhideRowsOrCols.call(_this3, 'row', index);
+    unhideRowsOrCols.call(_this4, 'row', index);
   };
 
   colResizer.unhideFn = function (index) {
-    unhideRowsOrCols.call(_this3, 'col', index);
+    unhideRowsOrCols.call(_this4, 'col', index);
   }; // editor
 
 
   editor.change = function (state, itext) {
-    dataSetCellText.call(_this3, itext, state);
+    dataSetCellText.call(_this4, itext, state);
   }; // modal validation
 
 
   modalValidation.change = function (action) {
     if (action === 'save') {
-      var _this3$data;
+      var _this4$data;
 
       for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
         args[_key2 - 1] = arguments[_key2];
       }
 
-      (_this3$data = _this3.data).addValidation.apply(_this3$data, args);
+      (_this4$data = _this4.data).addValidation.apply(_this4$data, args);
     } else {
-      _this3.data.removeValidation();
+      _this4.data.removeValidation();
     }
   }; //JumpToRow Modal
 
@@ -6104,47 +6093,52 @@ function sheetInitEvents() {
       row = 1;
     }
 
-    selectorSet.call(_this3, false, Number(row) - 1, 0);
-    _this3.overlayerCEl.el.scrollTop = 0;
-    scrollbarMove.call(_this3);
+    selectorSet.call(_this4, false, Number(row) - 1, 0);
+    _this4.overlayerCEl.el.scrollTop = 0;
+    scrollbarMove.call(_this4);
   }; // contextmenu
 
 
   contextMenu.itemClick = function (type) {
     // console.log('type:', type);
     if (type === 'validation') {
-      modalValidation.setValue(_this3.data.getSelectedValidation());
+      modalValidation.setValue(_this4.data.getSelectedValidation());
     } else if (type === 'copy') {
-      copy.call(_this3);
+      copy.call(_this4);
     } else if (type === 'cut') {
-      cut.call(_this3);
+      cut.call(_this4);
     } else if (type === 'paste') {
-      paste.call(_this3, 'all');
+      paste.call(_this4, 'all');
     } else if (type === 'paste-value') {
-      paste.call(_this3, 'text');
+      paste.call(_this4, 'text');
     } else if (type === 'paste-format') {
-      paste.call(_this3, 'format');
+      paste.call(_this4, 'format');
     } else if (type === 'hide') {
-      hideRowsOrCols.call(_this3);
+      hideRowsOrCols.call(_this4);
     } else {
-      insertDeleteRowColumn.call(_this3, type);
+      insertDeleteRowColumn.call(_this4, type);
     }
   };
 
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'resize', function () {
-    _this3.reload();
+    _this4.reload();
   });
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'click', function (evt) {
-    _this3.focusing = overlayerEl.contains(evt.target);
+    _this4.focusing = overlayerEl.contains(evt.target);
   });
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'paste', function (evt) {
-    if (!_this3.focusing) return;
-    paste.call(_this3, 'all', evt);
+    if (!_this4.focusing) return;
+    paste.call(_this4, 'all', evt);
+    evt.preventDefault();
+  });
+  Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'copy', function (evt) {
+    if (!_this4.focusing) return;
+    copy.call(_this4, evt);
     evt.preventDefault();
   }); // for selector
 
   Object(_event__WEBPACK_IMPORTED_MODULE_1__["bind"])(window, 'keydown', function (evt) {
-    if (!_this3.focusing) return;
+    if (!_this4.focusing) return;
     var keyCode = evt.keyCode || evt.which;
     var key = evt.key,
         ctrlKey = evt.ctrlKey,
@@ -6159,27 +6153,27 @@ function sheetInitEvents() {
       switch (keyCode) {
         case 90:
           // undo: ctrl + z
-          _this3.undo();
+          _this4.undo();
 
           evt.preventDefault();
           break;
 
         case 89:
           // redo: ctrl + y
-          _this3.redo();
+          _this4.redo();
 
           evt.preventDefault();
           break;
 
         case 67:
           // ctrl + c
-          copy.call(_this3);
+          copy.call(_this4);
           evt.preventDefault();
           break;
 
         case 88:
           // ctrl + x
-          cut.call(_this3);
+          cut.call(_this4);
           evt.preventDefault();
           break;
 
@@ -6197,31 +6191,31 @@ function sheetInitEvents() {
 
         case 37:
           // ctrl + left
-          selectorMove.call(_this3, shiftKey, 'row-first');
+          selectorMove.call(_this4, shiftKey, 'row-first');
           evt.preventDefault();
           break;
 
         case 38:
           // ctrl + up
-          selectorMove.call(_this3, shiftKey, 'col-first');
+          selectorMove.call(_this4, shiftKey, 'col-first');
           evt.preventDefault();
           break;
 
         case 39:
           // ctrl + right
-          selectorMove.call(_this3, shiftKey, 'row-last');
+          selectorMove.call(_this4, shiftKey, 'row-last');
           evt.preventDefault();
           break;
 
         case 40:
           // ctrl + down
-          selectorMove.call(_this3, shiftKey, 'col-last');
+          selectorMove.call(_this4, shiftKey, 'col-last');
           evt.preventDefault();
           break;
 
         case 32:
           // ctrl + space, all cells in col
-          selectorSet.call(_this3, false, -1, _this3.data.selector.ci, false);
+          selectorSet.call(_this4, false, -1, _this4.data.selector.ci, false);
           evt.preventDefault();
           break;
 
@@ -6244,7 +6238,7 @@ function sheetInitEvents() {
         case 32:
           if (shiftKey) {
             // shift + space, all cells in row
-            selectorSet.call(_this3, false, _this3.data.selector.ri, -1, false);
+            selectorSet.call(_this4, false, _this4.data.selector.ri, -1, false);
           }
 
           break;
@@ -6252,30 +6246,30 @@ function sheetInitEvents() {
         case 27:
           // esc
           contextMenu.hide();
-          clearClipboard.call(_this3);
+          clearClipboard.call(_this4);
           break;
 
         case 37:
           // left
-          selectorMove.call(_this3, shiftKey, 'left');
+          selectorMove.call(_this4, shiftKey, 'left');
           evt.preventDefault();
           break;
 
         case 38:
           // up
-          selectorMove.call(_this3, shiftKey, 'up');
+          selectorMove.call(_this4, shiftKey, 'up');
           evt.preventDefault();
           break;
 
         case 39:
           // right
-          selectorMove.call(_this3, shiftKey, 'right');
+          selectorMove.call(_this4, shiftKey, 'right');
           evt.preventDefault();
           break;
 
         case 40:
           // down
-          selectorMove.call(_this3, shiftKey, 'down');
+          selectorMove.call(_this4, shiftKey, 'down');
           evt.preventDefault();
           break;
 
@@ -6284,7 +6278,7 @@ function sheetInitEvents() {
           editor.clear(); // shift + tab => move left
           // tab => move right
 
-          selectorMove.call(_this3, false, shiftKey ? 'left' : 'right');
+          selectorMove.call(_this4, false, shiftKey ? 'left' : 'right');
           evt.preventDefault();
           break;
 
@@ -6293,13 +6287,13 @@ function sheetInitEvents() {
           editor.clear(); // shift + enter => move up
           // enter => move down
 
-          selectorMove.call(_this3, false, shiftKey ? 'up' : 'down');
+          selectorMove.call(_this4, false, shiftKey ? 'up' : 'down');
           evt.preventDefault();
           break;
 
         case 8:
           // backspace
-          insertDeleteRowColumn.call(_this3, 'delete-cell-text');
+          insertDeleteRowColumn.call(_this4, 'delete-cell-text');
           evt.preventDefault();
           break;
 
@@ -6308,14 +6302,14 @@ function sheetInitEvents() {
       }
 
       if (key === 'Delete') {
-        insertDeleteRowColumn.call(_this3, 'delete-cell-text');
+        insertDeleteRowColumn.call(_this4, 'delete-cell-text');
         evt.preventDefault();
       } else if (keyCode >= 65 && keyCode <= 90 || keyCode >= 48 && keyCode <= 57 || keyCode >= 96 && keyCode <= 105 || evt.key === '=') {
-        dataSetCellText.call(_this3, evt.key, 'input');
-        editorSet.call(_this3);
+        dataSetCellText.call(_this4, evt.key, 'input');
+        editorSet.call(_this4);
       } else if (keyCode === 113) {
         // F2
-        editorSet.call(_this3);
+        editorSet.call(_this4);
       }
     }
   });
@@ -6325,7 +6319,7 @@ var Sheet =
 /*#__PURE__*/
 function () {
   function Sheet(targetEl, data) {
-    var _this4 = this;
+    var _this5 = this;
 
     _classCallCheck(this, Sheet);
 
@@ -6347,7 +6341,7 @@ function () {
     // editor
 
     this.editor = new _editor__WEBPACK_IMPORTED_MODULE_4__["default"](_core_formula__WEBPACK_IMPORTED_MODULE_14__["formulas"], function () {
-      return _this4.getTableOffset();
+      return _this5.getTableOffset();
     }, data.rows.height); //modal JumpTo
 
     this.modalJumpTo = new _modal_jumpto__WEBPACK_IMPORTED_MODULE_10__["default"](); // data validation
@@ -6355,7 +6349,7 @@ function () {
     this.modalValidation = new _modal_validation__WEBPACK_IMPORTED_MODULE_9__["default"](); // contextMenu
 
     this.contextMenu = new _contextmenu__WEBPACK_IMPORTED_MODULE_6__["default"](function () {
-      return _this4.getRect();
+      return _this5.getRect();
     }, !showContextmenu); // selector
 
     this.selector = new _selector__WEBPACK_IMPORTED_MODULE_3__["default"](data);
@@ -6425,7 +6419,6 @@ function () {
   }, {
     key: "freeze",
     value: function freeze(ri, ci) {
-      console.log("freeze", ri);
       var data = this.data;
       data.setFreeze(ri, ci);
       sheetReset.call(this);
@@ -6707,7 +6700,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./element */ "./src/component/element.js");
 /* harmony import */ var _event__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./event */ "./src/component/event.js");
 /* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../config */ "./src/config.js");
-/* harmony import */ var _scrollbar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scrollbar */ "./src/component/scrollbar.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -6721,7 +6713,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 
 
 
@@ -6817,7 +6808,6 @@ function () {
 
     _classCallCheck(this, Suggest);
 
-    this.scrollbar = new _scrollbar__WEBPACK_IMPORTED_MODULE_3__["default"](true);
     this.filterItems = [];
     this.items = items;
     this.el = Object(_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_2__["cssPrefix"], "-suggest")).css('width', width).hide();
@@ -7032,7 +7022,7 @@ function renderCell(draw, data, rindex, cindex) {
 
   draw.rect(dbox, function () {
     // render text
-    var cellText = "";
+    var cellText = '';
 
     if (!data.settings.evalPaused) {
       cellText = _core_cell__WEBPACK_IMPORTED_MODULE_2__["default"].render(cell.text || '', _core_formula__WEBPACK_IMPORTED_MODULE_3__["formulam"], function (y, x) {
@@ -7048,13 +7038,14 @@ function renderCell(draw, data, rindex, cindex) {
     }
 
     var font = Object.assign({}, style.font);
-    font.size = Object(_core_font__WEBPACK_IMPORTED_MODULE_1__["getFontSizePxByPt"])(font.size); // console.log('style:', style);
-
+    font.size = Object(_core_font__WEBPACK_IMPORTED_MODULE_1__["getFontSizePxByPt"])(font.size);
+    var sc = parseFloat(cell.text) < 0 && data.settings.negativeColor !== false ? data.settings.negativeColor : style.color;
+    if (Number.isInteger(cellText)) sc = cellText < 0 ? data.settings.negativeColor : sc;else if (parseFloat(cellText.replace('$', '')) < 0) sc = data.settings.negativeColor;
     draw.text(cellText, dbox, {
       align: style.align,
       valign: style.valign,
       font: font,
-      color: style.color,
+      color: sc,
       strike: style.strike,
       underline: style.underline
     }, style.textwrap); // error
@@ -7098,9 +7089,10 @@ function renderContent(viewRange, fw, fh, tx, ty, dx, dy) {
   var draw = this.draw,
       data = this.data,
       w = viewRange.w,
-      h = viewRange.h;
+      h = viewRange.h,
+      thin = Object(_canvas_draw__WEBPACK_IMPORTED_MODULE_5__["thinLineWidth"])() * .5;
   draw.save();
-  draw.translate(fw, fh).clipRect(tx, ty, w, h).translate(dx, dy);
+  draw.translate(fw, fh).clipRect(tx + thin, ty + thin, w, h).translate(dx, dy);
   var exceptRowSet = data.exceptRowSet; // const exceptRows = Array.from(exceptRowSet);
 
   var filteredTranslateFunc = function filteredTranslateFunc(ri) {
@@ -7186,11 +7178,11 @@ function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
       data = this.data,
       settings = data.settings,
       contSize = data.contSize,
+      freeze = data.freeze,
       width = contSize.width,
       height = contSize.height,
-      sr = data.selector.range,
-      nty = ty + fh,
-      ntx = tx + fw;
+      cliped = [0, 0],
+      sr = data.selector.range;
   draw.save(); // draw rect background
 
   draw.attr(tableFixedHeaderCleanStyle);
@@ -7199,8 +7191,8 @@ function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
 
   draw.attr(tableFixedHeaderStyle()).clipRect(0, 0, fw + width, fh + height).save().translate(0, fh);
   data.rowEach(0, eri, function (i, y, ch) {
-    if (i == data.freeze[0]) draw.line([0, y], [w, y]).clipRect(0, y, w, h);
-    if (i >= sri) y += dy;else if (i >= data.freeze[0]) return;
+    if (i >= freeze[0] && !cliped[0]++) draw.line([0, y], [w, y]).clipRect(0, y, w, h);
+    if (i >= sri) y += dy;else if (i >= freeze[0]) return;
 
     if (sr.sri <= i && i <= sr.eri) {
       renderSelectedHeaderCell.call(_this, 0, y, fw, ch);
@@ -7222,7 +7214,7 @@ function renderContentGrid(_ref2, fw, fh, tx, ty, dx, dy) {
   });
   draw.restore().translate(fw, 0);
   data.colEach(0, eci, function (i, x, cw) {
-    if (i == data.freeze[1]) draw.line([x, 0], [x, h]).clipRect(x, 0, w, h);
+    if (i >= data.freeze[1] && !cliped[1]++) draw.line([x, 0], [x, h]).clipRect(x, 0, w, h);
     if (i >= sci) x += dx;else if (i >= data.freeze[1]) return;
 
     if (sr.sci <= i && i <= sr.eci) {
@@ -8159,9 +8151,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _textwrap__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./textwrap */ "./src/component/toolbar/textwrap.js");
 /* harmony import */ var _more__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./more */ "./src/component/toolbar/more.js");
 /* harmony import */ var _jumptocell__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./jumptocell */ "./src/component/toolbar/jumptocell.js");
-/* harmony import */ var _element__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../element */ "./src/component/element.js");
-/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../../config */ "./src/config.js");
-/* harmony import */ var _event__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../event */ "./src/component/event.js");
+/* harmony import */ var _item__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./item */ "./src/component/toolbar/item.js");
+/* harmony import */ var _element__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../element */ "./src/component/element.js");
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../../config */ "./src/config.js");
+/* harmony import */ var _event__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../event */ "./src/component/event.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -8205,8 +8198,9 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+
 function buildDivider() {
-  return Object(_element__WEBPACK_IMPORTED_MODULE_24__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_25__["cssPrefix"], "-toolbar-divider"));
+  return Object(_element__WEBPACK_IMPORTED_MODULE_25__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_26__["cssPrefix"], "-toolbar-divider"));
 }
 
 function initBtns2() {
@@ -8281,11 +8275,34 @@ function moreResize() {
   }
 }
 
+function genBtn(it) {
+  var _this2 = this;
+
+  var btn = new _item__WEBPACK_IMPORTED_MODULE_24__["default"]();
+  btn.el.on('click', function () {
+    if (it.onClick) it.onClick(_this2.data.getData(), _this2.data);
+  });
+  btn.tip = it.tip || '';
+  var el = it.el;
+
+  if (it.icon) {
+    el = Object(_element__WEBPACK_IMPORTED_MODULE_25__["h"])('img').attr('src', it.icon);
+  }
+
+  if (el) {
+    var icon = Object(_element__WEBPACK_IMPORTED_MODULE_25__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_26__["cssPrefix"], "-icon"));
+    icon.child(el);
+    btn.el.child(icon);
+  }
+
+  return btn;
+}
+
 var Toolbar =
 /*#__PURE__*/
 function () {
   function Toolbar(data, widthFn) {
-    var _this2 = this;
+    var _this3 = this;
 
     var isHide = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
@@ -8299,19 +8316,37 @@ function () {
     this.isHide = isHide;
     var style = data.defaultStyle();
     this.items = [[this.undoEl = new _undo__WEBPACK_IMPORTED_MODULE_19__["default"](), this.redoEl = new _redo__WEBPACK_IMPORTED_MODULE_18__["default"](), new _print__WEBPACK_IMPORTED_MODULE_20__["default"](), this.paintformatEl = new _paintformat__WEBPACK_IMPORTED_MODULE_9__["default"](), this.clearformatEl = new _clearformat__WEBPACK_IMPORTED_MODULE_8__["default"]()], buildDivider(), [this.formatEl = new _format__WEBPACK_IMPORTED_MODULE_14__["default"]()], buildDivider(), [this.fontEl = new _font__WEBPACK_IMPORTED_MODULE_13__["default"](), this.fontSizeEl = new _font_size__WEBPACK_IMPORTED_MODULE_12__["default"]()], buildDivider(), [this.boldEl = new _bold__WEBPACK_IMPORTED_MODULE_3__["default"](), this.italicEl = new _italic__WEBPACK_IMPORTED_MODULE_4__["default"](), this.underlineEl = new _underline__WEBPACK_IMPORTED_MODULE_6__["default"](), this.strikeEl = new _strike__WEBPACK_IMPORTED_MODULE_5__["default"](), this.textColorEl = new _text_color__WEBPACK_IMPORTED_MODULE_10__["default"](style.color)], buildDivider(), [this.fillColorEl = new _fill_color__WEBPACK_IMPORTED_MODULE_11__["default"](style.bgcolor), this.borderEl = new _border__WEBPACK_IMPORTED_MODULE_7__["default"](), this.mergeEl = new _merge__WEBPACK_IMPORTED_MODULE_17__["default"]()], buildDivider(), [this.alignEl = new _align__WEBPACK_IMPORTED_MODULE_0__["default"](style.align), this.valignEl = new _valign__WEBPACK_IMPORTED_MODULE_1__["default"](style.valign), this.textwrapEl = new _textwrap__WEBPACK_IMPORTED_MODULE_21__["default"]()], buildDivider(), [this.freezeEl = new _freeze__WEBPACK_IMPORTED_MODULE_16__["default"](), this.autofilterEl = new _autofilter__WEBPACK_IMPORTED_MODULE_2__["default"](), this.formulaEl = new _formula__WEBPACK_IMPORTED_MODULE_15__["default"](), this.moreEl = new _more__WEBPACK_IMPORTED_MODULE_22__["default"]()], buildDivider(), [this.jumpToCellEl = new _jumptocell__WEBPACK_IMPORTED_MODULE_23__["default"]()]];
-    this.el = Object(_element__WEBPACK_IMPORTED_MODULE_24__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_25__["cssPrefix"], "-toolbar"));
-    this.btns = Object(_element__WEBPACK_IMPORTED_MODULE_24__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_25__["cssPrefix"], "-toolbar-btns"));
+    var _data$settings$extend = data.settings.extendToolbar,
+        extendToolbar = _data$settings$extend === void 0 ? {} : _data$settings$extend;
+
+    if (extendToolbar.left && extendToolbar.left.length > 0) {
+      this.items.unshift(buildDivider());
+      var btns = extendToolbar.left.map(genBtn.bind(this));
+      this.items.unshift(btns);
+    }
+
+    if (extendToolbar.right && extendToolbar.right.length > 0) {
+      this.items.push(buildDivider());
+
+      var _btns = extendToolbar.right.map(genBtn.bind(this));
+
+      this.items.push(_btns);
+    }
+
+    this.items.push([this.moreEl = new _more__WEBPACK_IMPORTED_MODULE_22__["default"]()]);
+    this.el = Object(_element__WEBPACK_IMPORTED_MODULE_25__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_26__["cssPrefix"], "-toolbar"));
+    this.btns = Object(_element__WEBPACK_IMPORTED_MODULE_25__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_26__["cssPrefix"], "-toolbar-btns"));
     this.items.forEach(function (it) {
       if (Array.isArray(it)) {
         it.forEach(function (i) {
-          _this2.btns.child(i.el);
+          _this3.btns.child(i.el);
 
           i.change = function () {
-            _this2.change.apply(_this2, arguments);
+            _this3.change.apply(_this3, arguments);
           };
         });
       } else {
-        _this2.btns.child(it.el);
+        _this3.btns.child(it.el);
       }
     });
     this.el.child(this.btns);
@@ -8321,11 +8356,11 @@ function () {
     } else {
       this.reset();
       setTimeout(function () {
-        initBtns2.call(_this2);
-        moreResize.call(_this2);
+        initBtns2.call(_this3);
+        moreResize.call(_this3);
       }, 0);
-      Object(_event__WEBPACK_IMPORTED_MODULE_26__["bind"])(window, 'resize', function () {
-        moreResize.call(_this2);
+      Object(_event__WEBPACK_IMPORTED_MODULE_27__["bind"])(window, 'resize', function () {
+        moreResize.call(_this3);
       });
     }
   }
@@ -8469,7 +8504,8 @@ function () {
   function Item(tag, shortcut, value) {
     _classCallCheck(this, Item);
 
-    this.tip = Object(_locale_locale__WEBPACK_IMPORTED_MODULE_3__["t"])("toolbar.".concat(tag.replace(/-[a-z]/g, function (c) {
+    this.tip = '';
+    if (tag) this.tip = Object(_locale_locale__WEBPACK_IMPORTED_MODULE_3__["t"])("toolbar.".concat(tag.replace(/-[a-z]/g, function (c) {
       return c[1].toUpperCase();
     })));
     if (shortcut) this.tip += " (".concat(shortcut, ")");
@@ -8484,9 +8520,11 @@ function () {
   _createClass(Item, [{
     key: "element",
     value: function element() {
+      var _this = this;
+
       var tip = this.tip;
       return Object(_element__WEBPACK_IMPORTED_MODULE_2__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_0__["cssPrefix"], "-toolbar-btn")).on('mouseenter', function (evt) {
-        Object(_tooltip__WEBPACK_IMPORTED_MODULE_1__["default"])(tip, evt.target);
+        if (_this.tip) Object(_tooltip__WEBPACK_IMPORTED_MODULE_1__["default"])(_this.tip, evt.target);
       }).attr('data-tooltip', tip);
     }
   }, {
@@ -10726,6 +10764,9 @@ var defaultSettings = {
   showGrid: true,
   showToolbar: true,
   showContextmenu: true,
+  showBottomBar: true,
+  saveHistory: true,
+  negativeColor: '#000000',
   row: {
     len: 100,
     height: 25
@@ -10851,7 +10892,7 @@ function setStyleBorders(_ref) {
       sci = _selector$range.sci,
       eri = _selector$range.eri,
       eci = _selector$range.eci;
-  var multiple = !this.isSignleSelected();
+  var multiple = !this.isSingleSelected();
 
   if (!multiple) {
     if (mode === 'inside' || mode === 'horizontal' || mode === 'vertical') {
@@ -11060,7 +11101,7 @@ function getCellColByX(x, scrollOffsetx) {
 var DataProxy =
 /*#__PURE__*/
 function () {
-  function DataProxy(name, settings) {
+  function DataProxy(name, settings, sheet) {
     _classCallCheck(this, DataProxy);
 
     this.settings = _helper__WEBPACK_IMPORTED_MODULE_6__["default"].merge(defaultSettings, settings || {}); // save data begin
@@ -11071,7 +11112,7 @@ function () {
 
     this.merges = new _merge__WEBPACK_IMPORTED_MODULE_5__["Merges"](); // [CellRange, ...]
 
-    this.rows = new _row__WEBPACK_IMPORTED_MODULE_7__["Rows"](this.settings.row);
+    this.rows = new _row__WEBPACK_IMPORTED_MODULE_7__["Rows"](this.settings.row, sheet);
     this.cols = new _col__WEBPACK_IMPORTED_MODULE_8__["Cols"](this.settings.col);
     this.validations = new _validation__WEBPACK_IMPORTED_MODULE_9__["Validations"]();
     this.hyperlinks = {};
@@ -11080,7 +11121,7 @@ function () {
 
     this.selector = new _selector__WEBPACK_IMPORTED_MODULE_0__["default"]();
     this.scroll = new _scroll__WEBPACK_IMPORTED_MODULE_1__["default"]();
-    this.history = new _history__WEBPACK_IMPORTED_MODULE_2__["default"]();
+    this.history = new _history__WEBPACK_IMPORTED_MODULE_2__["default"](this.settings.saveHistory);
     this.clipboard = new _clipboard__WEBPACK_IMPORTED_MODULE_3__["default"]();
     this.autoFilter = new _auto_filter__WEBPACK_IMPORTED_MODULE_4__["default"]();
 
@@ -11174,43 +11215,45 @@ function () {
     }
   }, {
     key: "copyToSystemClipboard",
-    value: function copyToSystemClipboard() {
-      if (navigator.clipboard == undefined) {
-        return;
-      }
+    value: function copyToSystemClipboard(evt) {
+      var copyText = [];
+      var _this$selector$range = this.selector.range,
+          sri = _this$selector$range.sri,
+          eri = _this$selector$range.eri,
+          sci = _this$selector$range.sci,
+          eci = _this$selector$range.eci;
 
-      var copyText = "";
-      var rowData = this.rows.getData();
+      for (var ri = sri; ri <= eri; ri += 1) {
+        var row = [];
 
-      for (var ri = this.selector.range.sri; ri <= this.selector.range.eri; ri++) {
-        if (rowData.hasOwnProperty(ri)) {
-          for (var ci = this.selector.range.sci; ci <= this.selector.range.eci; ci++) {
-            if (ci > this.selector.range.sci) {
-              copyText += '\t';
-            }
-
-            if (rowData[ri].cells.hasOwnProperty(ci)) {
-              var cellText = String(rowData[ri].cells[ci].text);
-
-              if (cellText.indexOf("\n") == -1 && cellText.indexOf("\t") == -1 && cellText.indexOf("\"") == -1) {
-                copyText += cellText;
-              } else {
-                copyText += "\"" + cellText + "\"";
-              }
-            }
-          }
-        } else {
-          for (var ci = this.selector.range.sci; ci <= this.selector.range.eci; ci++) {
-            copyText += '\t';
-          }
+        for (var ci = sci; ci <= eci; ci += 1) {
+          var cell = this.getCell(ri, ci);
+          row.push(cell && cell.text || '');
         }
 
-        copyText += '\n';
-      }
+        copyText.push(row);
+      } // Adding \n and why not adding \r\n is to support online office and client MS office and WPS
 
-      navigator.clipboard.writeText(copyText).then(function () {}, function (err) {
-        console.log('text copy to the system clipboard error  ', copyText, err);
-      });
+
+      copyText = copyText.map(function (row) {
+        return row.join('\t');
+      }).join('\n'); // why used this
+      // cuz http protocol will be blocked request clipboard by browser
+
+      if (evt) {
+        evt.clipboardData.clearData();
+        evt.clipboardData.setData('text/plain', copyText);
+        evt.preventDefault();
+      } // this need https protocol
+
+      /* global navigator */
+
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(copyText).then(function () {}, function (err) {
+          console.log('text copy to the system clipboard error  ', copyText, err);
+        });
+      }
     }
   }, {
     key: "cut",
@@ -11240,28 +11283,70 @@ function () {
       return true;
     }
   }, {
+    key: "pasteFromSystemClipboard",
+    value: function pasteFromSystemClipboard(resetSheet, eventTrigger) {
+      var _this7 = this;
+
+      var selector = this.selector;
+      navigator.clipboard.readText().then(function (content) {
+        var contentToPaste = _this7.parseClipboardContent(content);
+
+        var startRow = selector.ri;
+        contentToPaste.forEach(function (row) {
+          var startColumn = selector.ci;
+          row.forEach(function (cellContent) {
+            _this7.setCellText(startRow, startColumn, cellContent, 'input');
+
+            startColumn += 1;
+          });
+          startRow += 1;
+        });
+        resetSheet();
+        eventTrigger(_this7.rows.getData());
+      });
+    }
+  }, {
+    key: "parseClipboardContent",
+    value: function parseClipboardContent(clipboardContent) {
+      var parsedData = []; // first we need to figure out how many rows we need to paste
+
+      var rows = clipboardContent.split('\n'); // for each row parse cell data
+
+      var i = 0;
+      rows.forEach(function (row) {
+        parsedData[i] = row.split('\t');
+        i += 1;
+      });
+      return parsedData;
+    }
+  }, {
     key: "pasteFromText",
     value: function pasteFromText(txt) {
-      var lines = txt.split('\r\n').map(function (it) {
+      var lines = [];
+      if (/\r\n/.test(txt)) lines = txt.split('\r\n').map(function (it) {
+        return it.replace(/"/g, '').split('\t');
+      });else lines = txt.split('\n').map(function (it) {
         return it.replace(/"/g, '').split('\t');
       });
-      if (lines.length > 0) lines.length -= 1;
-      var rows = this.rows,
-          selector = this.selector;
-      this.changeData(function () {
-        rows.paste(lines, selector.range);
-      });
+
+      if (lines.length) {
+        var rows = this.rows,
+            selector = this.selector;
+        this.changeData(function () {
+          rows.paste(lines, selector.range);
+        });
+      }
     }
   }, {
     key: "autofill",
     value: function autofill(cellRange, what) {
-      var _this7 = this;
+      var _this8 = this;
 
       var error = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {};
       var srcRange = this.selector.range;
       if (!canPaste.call(this, srcRange, cellRange, error)) return false;
       this.changeData(function () {
-        copyPaste.call(_this7, srcRange, cellRange, what, true);
+        copyPaste.call(_this8, srcRange, cellRange, what, true);
       });
       return true;
     }
@@ -11339,17 +11424,17 @@ function () {
   }, {
     key: "setSelectedCellAttr",
     value: function setSelectedCellAttr(property, value) {
-      var _this8 = this;
+      var _this9 = this;
 
       this.changeData(function () {
-        var selector = _this8.selector,
-            styles = _this8.styles,
-            rows = _this8.rows;
+        var selector = _this9.selector,
+            styles = _this9.styles,
+            rows = _this9.rows;
 
         if (property === 'merge') {
-          if (value) _this8.merge();else _this8.unmerge();
+          if (value) _this9.merge();else _this9.unmerge();
         } else if (property === 'border') {
-          setStyleBorders.call(_this8, value);
+          setStyleBorders.call(_this9, value);
         } else if (property === 'formula') {
           // console.log('>>>', selector.multiple());
           var ri = selector.ri,
@@ -11393,15 +11478,15 @@ function () {
 
             if (property === 'format') {
               cstyle.format = value;
-              cell.style = _this8.addStyle(cstyle);
+              cell.style = _this9.addStyle(cstyle);
             } else if (property === 'font-bold' || property === 'font-italic' || property === 'font-name' || property === 'font-size') {
               var nfont = {};
               nfont[property.split('-')[1]] = value;
               cstyle.font = Object.assign(cstyle.font || {}, nfont);
-              cell.style = _this8.addStyle(cstyle);
+              cell.style = _this9.addStyle(cstyle);
             } else if (property === 'strike' || property === 'textwrap' || property === 'underline' || property === 'align' || property === 'valign' || property === 'color' || property === 'bgcolor') {
               cstyle[property] = value;
-              cell.style = _this8.addStyle(cstyle);
+              cell.style = _this9.addStyle(cstyle);
             } else {
               cell[property] = value;
             }
@@ -11595,13 +11680,13 @@ function () {
       };
     }
   }, {
-    key: "isSignleSelected",
-    value: function isSignleSelected() {
-      var _this$selector$range = this.selector.range,
-          sri = _this$selector$range.sri,
-          sci = _this$selector$range.sci,
-          eri = _this$selector$range.eri,
-          eci = _this$selector$range.eci;
+    key: "isSingleSelected",
+    value: function isSingleSelected() {
+      var _this$selector$range2 = this.selector.range,
+          sri = _this$selector$range2.sri,
+          sci = _this$selector$range2.sci,
+          eri = _this$selector$range2.eri,
+          eci = _this$selector$range2.eci;
       var cell = this.getCell(sri, sci);
 
       if (cell && cell.merge) {
@@ -11617,11 +11702,11 @@ function () {
   }, {
     key: "canUnmerge",
     value: function canUnmerge() {
-      var _this$selector$range2 = this.selector.range,
-          sri = _this$selector$range2.sri,
-          sci = _this$selector$range2.sci,
-          eri = _this$selector$range2.eri,
-          eci = _this$selector$range2.eci;
+      var _this$selector$range3 = this.selector.range,
+          sri = _this$selector$range3.sri,
+          sci = _this$selector$range3.sci,
+          eri = _this$selector$range3.eri,
+          eci = _this$selector$range3.eci;
       var cell = this.getCell(sri, sci);
 
       if (cell && cell.merge) {
@@ -11637,11 +11722,11 @@ function () {
   }, {
     key: "merge",
     value: function merge() {
-      var _this9 = this;
+      var _this10 = this;
 
       var selector = this.selector,
           rows = this.rows;
-      if (this.isSignleSelected()) return;
+      if (this.isSingleSelected()) return;
 
       var _selector$size3 = selector.size(),
           _selector$size4 = _slicedToArray(_selector$size3, 2),
@@ -11657,30 +11742,30 @@ function () {
           var cell = rows.getCellOrNew(sri, sci);
           cell.merge = [rn - 1, cn - 1];
 
-          _this9.merges.add(selector.range); // delete merge cells
+          _this10.merges.add(selector.range); // delete merge cells
 
 
-          _this9.rows.deleteCells(selector.range); // console.log('cell:', cell, this.d);
+          _this10.rows.deleteCells(selector.range); // console.log('cell:', cell, this.d);
 
 
-          _this9.rows.setCell(sri, sci, cell);
+          _this10.rows.setCell(sri, sci, cell);
         });
       }
     }
   }, {
     key: "unmerge",
     value: function unmerge() {
-      var _this10 = this;
+      var _this11 = this;
 
       var selector = this.selector;
-      if (!this.isSignleSelected()) return;
+      if (!this.isSingleSelected()) return;
       var _selector$range4 = selector.range,
           sri = _selector$range4.sri,
           sci = _selector$range4.sci;
       this.changeData(function () {
-        _this10.rows.deleteCell(sri, sci, 'merge');
+        _this11.rows.deleteCell(sri, sci, 'merge');
 
-        _this10.merges.deleteWithin(selector.range);
+        _this11.merges.deleteWithin(selector.range);
       });
     }
   }, {
@@ -11691,16 +11776,16 @@ function () {
   }, {
     key: "autofilter",
     value: function autofilter() {
-      var _this11 = this;
+      var _this12 = this;
 
       var autoFilter = this.autoFilter,
           selector = this.selector;
       this.changeData(function () {
         if (autoFilter.active()) {
           autoFilter.clear();
-          _this11.exceptRowSet = new Set();
-          _this11.sortedRowMap = new Map();
-          _this11.unsortedRowMap = new Map();
+          _this12.exceptRowSet = new Set();
+          _this12.sortedRowMap = new Map();
+          _this12.unsortedRowMap = new Map();
         } else {
           autoFilter.ref = selector.range.toString();
         }
@@ -11717,7 +11802,7 @@ function () {
   }, {
     key: "resetAutoFilter",
     value: function resetAutoFilter() {
-      var _this12 = this;
+      var _this13 = this;
 
       var autoFilter = this.autoFilter,
           rows = this.rows;
@@ -11745,23 +11830,23 @@ function () {
       this.sortedRowMap = new Map();
       this.unsortedRowMap = new Map();
       fary.forEach(function (it, index) {
-        _this12.sortedRowMap.set(oldAry[index], it);
+        _this13.sortedRowMap.set(oldAry[index], it);
 
-        _this12.unsortedRowMap.set(it, oldAry[index]);
+        _this13.unsortedRowMap.set(it, oldAry[index]);
       });
     }
   }, {
     key: "deleteCell",
     value: function deleteCell() {
-      var _this13 = this;
+      var _this14 = this;
 
       var what = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'all';
       var selector = this.selector;
       this.changeData(function () {
-        _this13.rows.deleteCells(selector.range, what);
+        _this14.rows.deleteCells(selector.range, what);
 
         if (what === 'all' || what === 'format') {
-          _this13.merges.deleteWithin(selector.range);
+          _this14.merges.deleteWithin(selector.range);
         }
       });
     } // type: row | column
@@ -11769,16 +11854,16 @@ function () {
   }, {
     key: "insert",
     value: function insert(type) {
-      var _this14 = this;
+      var _this15 = this;
 
       var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
       this.changeData(function () {
-        var _this14$selector$rang = _this14.selector.range,
-            sri = _this14$selector$rang.sri,
-            sci = _this14$selector$rang.sci;
-        var rows = _this14.rows,
-            merges = _this14.merges,
-            cols = _this14.cols;
+        var _this15$selector$rang = _this15.selector.range,
+            sri = _this15$selector$rang.sri,
+            sci = _this15$selector$rang.sci;
+        var rows = _this15.rows,
+            merges = _this15.merges,
+            cols = _this15.cols;
         var si = sri;
 
         if (type === 'row') {
@@ -11800,13 +11885,13 @@ function () {
   }, {
     key: "delete",
     value: function _delete(type) {
-      var _this15 = this;
+      var _this16 = this;
 
       this.changeData(function () {
-        var rows = _this15.rows,
-            merges = _this15.merges,
-            selector = _this15.selector,
-            cols = _this15.cols;
+        var rows = _this16.rows,
+            merges = _this16.merges,
+            selector = _this16.selector,
+            cols = _this16.cols;
         var range = selector.range;
         var _selector$range5 = selector.range,
             sri = _selector$range5.sri,
@@ -11828,7 +11913,7 @@ function () {
           rows.deleteColumn(sci, eci);
           si = range.sci;
           size = csize;
-          cols.len -= 1;
+          cols.len -= eci - sci + 1;
         } // console.log('type:', type, ', si:', si, ', size:', size);
 
 
@@ -12012,10 +12097,10 @@ function () {
   }, {
     key: "setFreeze",
     value: function setFreeze(ri, ci) {
-      var _this16 = this;
+      var _this17 = this;
 
       this.changeData(function () {
-        _this16.freeze = [ri, ci];
+        _this17.freeze = [ri, ci];
       });
     }
   }, {
@@ -12031,19 +12116,19 @@ function () {
   }, {
     key: "setRowHeight",
     value: function setRowHeight(ri, height) {
-      var _this17 = this;
+      var _this18 = this;
 
       this.changeData(function () {
-        _this17.rows.setHeight(ri, height);
+        _this18.rows.setHeight(ri, height);
       });
     }
   }, {
     key: "setColWidth",
     value: function setColWidth(ci, width) {
-      var _this18 = this;
+      var _this19 = this;
 
       this.changeData(function () {
-        _this18.cols.setWidth(ci, width);
+        _this19.cols.setWidth(ci, width);
       });
     }
   }, {
@@ -12051,9 +12136,13 @@ function () {
     value: function viewHeight() {
       var _this$settings = this.settings,
           view = _this$settings.view,
-          showToolbar = _this$settings.showToolbar;
+          showToolbar = _this$settings.showToolbar,
+          showBottomBar = _this$settings.showBottomBar;
       var h = view.height();
-      h -= bottombarHeight;
+
+      if (showBottomBar) {
+        h -= bottombarHeight;
+      }
 
       if (showToolbar) {
         h -= toolbarHeight;
@@ -12272,22 +12361,22 @@ function () {
   }, {
     key: "setData",
     value: function setData(d) {
-      var _this19 = this;
+      var _this20 = this;
 
       Object.keys(d).forEach(function (property) {
         if (property === 'merges' || property === 'rows' || property === 'cols' || property === 'validations') {
-          _this19[property].setData(d[property]);
+          _this20[property].setData(d[property]);
         } else if (property === 'freeze') {
           var _expr2xy = Object(_alphabet__WEBPACK_IMPORTED_MODULE_11__["expr2xy"])(d[property]),
               _expr2xy2 = _slicedToArray(_expr2xy, 2),
               x = _expr2xy2[0],
               y = _expr2xy2[1];
 
-          _this19.freeze = [y, x];
+          _this20.freeze = [y, x];
         } else if (property === 'autofilter') {
-          _this19.autoFilter.setData(d[property]);
+          _this20.autoFilter.setData(d[property]);
         } else if (d[property] !== undefined) {
-          _this19[property] = d[property];
+          _this20[property] = d[property];
         }
       });
       return this;
@@ -12543,7 +12632,7 @@ var baseFormats = [{
   type: 'number',
   label: '$10.00',
   render: function render(v) {
-    return "$".concat(formatNumberRender(v));
+    return v < 0 ? "-$".concat(formatNumberRender(v * -1)) : "$".concat(formatNumberRender(v));
   }
 }, {
   key: 'eur',
@@ -12646,16 +12735,17 @@ var baseFormulas = [{
   title: Object(_locale_locale__WEBPACK_IMPORTED_MODULE_0__["tf"])('formula.sum'),
   render: function render(ary) {
     return ary.reduce(function (a, b) {
-      return Object(_helper__WEBPACK_IMPORTED_MODULE_1__["numberCalc"])('+', a, b, 0);
-    });
+      return Object(_helper__WEBPACK_IMPORTED_MODULE_1__["numberCalc"])('+', a, b);
+    }, 0);
   }
 }, {
   key: 'AVERAGE',
   title: Object(_locale_locale__WEBPACK_IMPORTED_MODULE_0__["tf"])('formula.average'),
   render: function render(ary) {
-    return Object(_helper__WEBPACK_IMPORTED_MODULE_1__["numberAvarage"])(ary);
-  } //render: ary => ary.reduce((a, b) => Number(a) + Number(b), 0) / ary.length,
-
+    return ary.reduce(function (a, b) {
+      return Number(a) + Number(b);
+    }, 0) / ary.length;
+  }
 }, {
   key: 'MAX',
   title: Object(_locale_locale__WEBPACK_IMPORTED_MODULE_0__["tf"])('formula.max'),
@@ -12872,9 +12962,15 @@ function convertStringToNumber(a) {
   var obj = {};
   var regexValue = /(\$*)\s*(\d*(\.|,)*\d*)\s*(hrs*|hr*|%*)/m;
   var allMatches = a.match(regexValue);
+
+  if (allMatches[0] === '') {
+    obj.number = Number.isNaN(parseFloat(a)) ? 0 : parseFloat(a);
+  } else {
+    obj.number = allMatches[2].replace(",", "");
+  }
+
   obj.prefix = allMatches[1];
   obj.sufix = allMatches[4];
-  obj.number = allMatches[2].replace(",", "");
   return obj;
 }
 
@@ -12964,31 +13060,38 @@ var History =
 /*#__PURE__*/
 function () {
   function History() {
+    var enabled = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
     _classCallCheck(this, History);
 
     this.undoItems = [];
     this.redoItems = [];
+    this.enabled = enabled;
   }
 
   _createClass(History, [{
     key: "add",
     value: function add(data) {
+      if (!this.enabled) return;
       this.undoItems.push(JSON.stringify(data));
       this.redoItems = [];
     }
   }, {
     key: "canUndo",
     value: function canUndo() {
+      if (!this.enabled) return;
       return this.undoItems.length > 0;
     }
   }, {
     key: "canRedo",
     value: function canRedo() {
+      if (!this.enabled) return;
       return this.redoItems.length > 0;
     }
   }, {
     key: "undo",
     value: function undo(currentd, cb) {
+      if (!this.enabled) return;
       var undoItems = this.undoItems,
           redoItems = this.redoItems;
 
@@ -13000,6 +13103,7 @@ function () {
   }, {
     key: "redo",
     value: function redo(currentd, cb) {
+      if (!this.enabled) return;
       var undoItems = this.undoItems,
           redoItems = this.redoItems;
 
@@ -13214,7 +13318,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Rows =
 /*#__PURE__*/
 function () {
-  function Rows(_ref) {
+  function Rows(_ref, sheet) {
     var len = _ref.len,
         height = _ref.height;
 
@@ -13224,6 +13328,7 @@ function () {
     this.len = len; // default row height
 
     this.height = height;
+    this.sheet = sheet;
   }
 
   _createClass(Rows, [{
@@ -13350,7 +13455,7 @@ function () {
     key: "setCellText",
     value: function setCellText(ri, ci, text) {
       var cell = this.getCellOrNew(ri, ci);
-      cell.text = text;
+      if (cell.editable !== false) cell.text = text;
     } // what: all | format | text
 
   }, {
@@ -13608,6 +13713,8 @@ function () {
       var what = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'all';
       cellRange.each(function (i, j) {
         _this8.deleteCell(i, j, what);
+
+        _this8.sheet.trigger('delete-cell', i, j);
       });
     } // what: all | text | format | merge
 
@@ -13621,6 +13728,7 @@ function () {
         var cell = this.getCell(ri, ci);
 
         if (cell !== null) {
+          // && cell.editable !== false) {
           if (what === 'all') {
             delete row.cells[ci];
           } else if (what === 'text') {
@@ -14219,6 +14327,12 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { keys.push.apply(keys, Object.getOwnPropertySymbols(object)); } if (enumerableOnly) keys = keys.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -14245,7 +14359,9 @@ function () {
     _classCallCheck(this, Spreadsheet);
 
     var targetEl = selectors;
-    this.options = options;
+    this.options = _objectSpread({
+      showBottomBar: true
+    }, options);
     this.sheetIndex = 1;
     this.datas = [];
 
@@ -14253,7 +14369,9 @@ function () {
       targetEl = document.querySelector(selectors);
     }
 
-    this.bottombar = new _component_bottombar__WEBPACK_IMPORTED_MODULE_3__["default"](function () {
+    this.bottombar = this.options.showBottomBar ? new _component_bottombar__WEBPACK_IMPORTED_MODULE_3__["default"](function () {
+      if (_this.options.mode === 'read') return;
+
       var d = _this.addSheet();
 
       _this.sheet.resetData(d);
@@ -14265,7 +14383,9 @@ function () {
       _this.deleteSheet();
     }, function (index, value) {
       _this.datas[index].name = value;
-    });
+
+      _this.sheet.trigger('change');
+    }) : null;
     this.data = this.addSheet();
     var rootEl = Object(_component_element__WEBPACK_IMPORTED_MODULE_0__["h"])('div', "".concat(_config__WEBPACK_IMPORTED_MODULE_4__["cssPrefix"])).on('contextmenu', function (evt) {
       return evt.preventDefault();
@@ -14273,7 +14393,10 @@ function () {
 
     targetEl.appendChild(rootEl.el);
     this.sheet = new _component_sheet__WEBPACK_IMPORTED_MODULE_2__["default"](rootEl, this.data);
-    rootEl.child(this.bottombar.el);
+
+    if (this.bottombar !== null) {
+      rootEl.child(this.bottombar.el);
+    }
   }
 
   _createClass(Spreadsheet, [{
@@ -14283,7 +14406,7 @@ function () {
 
       var active = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
       var n = name || "sheet".concat(this.sheetIndex);
-      var d = new _core_data_proxy__WEBPACK_IMPORTED_MODULE_1__["default"](n, this.options);
+      var d = new _core_data_proxy__WEBPACK_IMPORTED_MODULE_1__["default"](n, this.options, this.sheet);
 
       d.change = function () {
         var _this2$sheet;
@@ -14297,13 +14420,18 @@ function () {
 
       this.datas.push(d); // console.log('d:', n, d, this.datas);
 
-      this.bottombar.addItem(n, active);
+      if (this.bottombar !== null) {
+        this.bottombar.addItem(n, active, this.options);
+      }
+
       this.sheetIndex += 1;
       return d;
     }
   }, {
     key: "deleteSheet",
     value: function deleteSheet() {
+      if (this.bottombar === null) return;
+
       var _this$bottombar$delet = this.bottombar.deleteItem(),
           _this$bottombar$delet2 = _slicedToArray(_this$bottombar$delet, 2),
           oldIndex = _this$bottombar$delet2[0],
@@ -14312,13 +14440,18 @@ function () {
       if (oldIndex >= 0) {
         this.datas.splice(oldIndex, 1);
         if (nindex >= 0) this.sheet.resetData(this.datas[nindex]);
+        this.sheet.trigger('change');
       }
     }
   }, {
     key: "loadData",
     value: function loadData(data) {
       var ds = Array.isArray(data) ? data : [data];
-      this.bottombar.clear();
+
+      if (this.bottombar !== null) {
+        this.bottombar.clear();
+      }
+
       this.datas = [];
 
       if (ds.length > 0) {

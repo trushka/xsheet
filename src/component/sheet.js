@@ -255,7 +255,7 @@ function overlayerTouch(direction, distance) {
 }
 
 function setScroll() {
-  const { data, overlayerEl } = this;
+  const { data, overlayerEl, overlayerEl:{el} } = this;
   //const erth = data.exceptRowTotalHeight(0, -1);
   const
     width = data.cols.totalWidth(),
@@ -264,6 +264,10 @@ function setScroll() {
     h = height + data.rows.height;
   //console.log('erth:', erth);
   overlayerEl.css({'--w': w, '--h': h}, 'px')
+  this.overlayerCEl.css({
+    right: el.offsetWidth - el.clientWidth,
+    bottom: el.offsetHeight - el.clientHeight
+  }, 'px');
   data.contSize = {width, height}
 }
 
@@ -290,11 +294,11 @@ function sheetReset() {
     selector,
     el,
   } = this;
-  const tOffset = this.getTableOffset();
+  const {left, top} = this.getTableOffset();
   const vRect = this.getRect();
   tableEl.attr(vRect);
   overlayerEl.offset(vRect);
-  overlayerCEl.offset(tOffset);
+  overlayerCEl.css({left, top}, 'px');
   el.css('width', `${vRect.width}px`);
   setScroll.call(this);
   sheetFreeze.call(this);

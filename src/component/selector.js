@@ -150,8 +150,9 @@ function setBRAreaOffset(offset) {
 }
 
 function setTLAreaOffset(offset) {
+  const {l:left, t:top, width, height} = offset
   const { tl } = this;
-  tl.setAreaOffset(offset);
+  tl.setAreaOffset({left, top, width, height});
 }
 
 function setTAreaOffset(offset) {
