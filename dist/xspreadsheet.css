@@ -488,6 +488,7 @@ body {
 
 .x-spreadsheet-toolbar {
   border-bottom: 1px solid #e0e2e4;
+  position: relative;
 }
 .x-spreadsheet-toolbar .x-spreadsheet-toolbar-btns {
   display: inline-flex;
@@ -869,9 +870,15 @@ form fieldset select {
   padding: 0.75em 1em;
 }
 
-@media screen and (min-width: 320px) and (max-width: 480px) {
+@media screen and (max-width: 500px) {
   .x-spreadsheet-toolbar {
-    display: none;
+    /*     display: none; */
+  }
+  .x-spreadsheet-toolbar .x-spreadsheet-dropdown.bottom-right {
+    position: static;
+  }
+  .x-spreadsheet-toolbar .x-spreadsheet-dropdown.bottom-right .x-spreadsheet-dropdown-content {
+    max-width: 100vw !important;
   }
 }
 .x-spreadsheet-icon {

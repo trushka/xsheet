@@ -624,6 +624,7 @@ body {
 
 .#{$css-prefix}-toolbar {
   border-bottom: 1px solid #e0e2e4;
+  position: relative;
 
   .#{$css-prefix}-toolbar-btns {
     display: inline-flex;
@@ -1037,9 +1038,15 @@ form fieldset {
   padding: .75em 1em;
 }
 
-@media screen and (min-width: 320px) and (max-width: 480px) {
+@media screen and (max-width: 500px) {
   .#{$css-prefix}-toolbar {
-    display: none;
+/*     display: none; */
+    .#{$css-prefix}-dropdown.bottom-right {
+      position: static;
+      .#{$css-prefix}-dropdown-content{
+        max-width: 100vw !important;
+      }
+    }
   }
 }
 
